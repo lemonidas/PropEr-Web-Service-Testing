@@ -1,23 +1,10 @@
-\documentclass[submission,copyright]{eptcs}
+\documentclass[submission,copyright,a4]{eptcs}
 \providecommand{\event}{WWV 2012}
 \usepackage{breakurl}
 
 \usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
 
-%%% Examples of Article customizations
-% These packages are optional, depending whether you want the features they provide.
-% See the LaTeX Companion or other references for full information.
-
-%%% PAGE DIMENSIONS
-\usepackage{geometry} % to change the page dimensions
-\geometry{a4paper} % or letterpaper (US) or a5paper or....
-% \geometry{margin=2in} % for example, change the margins to 2 inches all round
-% \geometry{landscape} % set up the page for landscape
-%   read geometry.pdf for detailed page layout information
-
 \usepackage{graphicx} % support the \includegraphics command and options
-
-% \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
 
 %%% PACKAGES
 \usepackage{booktabs} % for much better looking tables
@@ -35,19 +22,23 @@
 \lhead{}\chead{}\rhead{}
 \lfoot{}\cfoot{\thepage}\rfoot{}
 
-%%% ToC (table of contents) APPEARANCE
-\usepackage[nottoc,notlof,notlot]{tocbibind} % Put the bibliography in the ToC
-\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
-\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
-\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} % No bold!
+\lstset{language=erlang,
+        basicstyle=\footnotesize\ttfamily,
+        columns=flexible,
+        %tabsize=2,
+        %numberbychapter=false,
+        captionpos=b,
+        %commentstyle=,
+        %basewidth=0.51em,
+        frame=single,
+        %framesep=2pt,
+        %frameround=tttt,
+        breaklines=true,
+        breakatwhitespace=true}
 
-%%% END Article customizations
-
-%%% The "real" document content comes below...
-
-\title{Automatic WSDL-based Testing of Web Services using PropEr} % keep PropEr?
+\title{Automatic WSDL-guided Property-based Testing of Web Services}
 \author{Leonidas Lampropoulos \and Konstantinos Sagonas}
-\def\titlerunning{Automatic WSDL-based Testing of Web Services using PropEr}
+\def\titlerunning{Automatic WSDL-guided Property-based Testing of Web Services}
 \def\authorrunning{L. Lampropoulos and K. Sagonas}
 
 \begin{document}
@@ -61,10 +52,14 @@
 
 We describe an extension of PropEr to accomodate property based testing of web services. This extension receives the URL of a Web Service (or more accurately the url of the Web Service's WSDL specification), parses the specification and creates an output file containing generators, calling functions and sample properties for all the input messages and types required by the Web Service to be invoked. The output file can be automatically compiled and used for response testing of web services with random, yet structurally valid testcases. In addition, the automatically created PropEr generators and properties can be easily modified, allowing the user to write properties the web service should have (? Edw dn m aresei to have), utilizing the full power of Erlang and PropEr.
 
-\section{Preliminaries}
+\section{System Architecture}
 
 To use the extension required are an Erlang distribution (with xmerl), Proper and Yaws.
 To run some of the examples below, Eclipse and Tomcat have been used, but any means of creating a Web Service should be an option.
+
+\subsection{WSDL}
+
+WSDL is the leading specification for web services in XML format, describing the web service in full: Operations, Input and output message types, locations, etc. Every WSDL specification contains (or references) an XSD schema inside, describing the types of the messages needed to invoke the web service. 
 
 \subsection{PropEr}
 
@@ -76,19 +71,18 @@ Include here:
 
 -Small Example?
 
-\subsection{WSDL}
-
-WSDL is the leading specification for web services in XML format, describing the web service in full: Operations, Input and output message types, locations, etc. Every WSDL specification contains (or references) an XSD schema inside, describing the types of the messages needed to invoke the web service. 
-
 \subsection{Yaws}
 
 Yaws is the most widely used Erlang HTTP webserver. We basically use only its soap library to handle the interaction between our erlang code and the web services, wrapping our types and generated data in valid soap structure, communicating with the web service, and returning the result. Yaws uses an XML parser called Erlsom to handle its soap message encoding/decoding, a parser module faster and more user friendly than the xmerl module of the Erlang distribution, imposing however a few additional limitations.
 
-\section{Overview}
+\subsection{xmerl}
+
+
+\section{Automatic Creation of Generators and Properties}
 
 The main idea behind the extension is to use PropEr to do property based testing on web services. This extension helps the user by creating generators, sample properties and call functions so that the user focuses on the important task - writing the property. 
 
-\subsection{Generators}
+\subsection{Automatic Creation Generators from WSDL Types}
 
 The most important part of the extension is automatically creating PropEr generators for each input message type of the operations supported. To that end, we parse the XSD schema of the WSDL specification using the xmerl module and create the most generic generators for the types described, in the format Yaws and Erlsom expect their arguments. While parsing the XSD schema, we use a small tuple format as an intermediate representation of the types of the Web Service, so that the resulting generators can be directly mapped from these tuples while being able to give the generators unique and descriptive names. These tuples are never encountered by the user, yet are extremely helpful in holding all the necessary information (and only that) to create the PropEr generators and overcome some important limitations that would otherwise be imposed by Erlsom. (? Thelei kati allo edw prin apo to paradeigma ?)
 
@@ -152,38 +146,34 @@ generate_ChangeCookingUnit_1_CookingValue() ->
   ?LET(Gen, float(), float_to_list(Gen)).
 
 generate_ChangeCookingUnit_1_fromCookingUnit_Cookings() ->
-  elements(["drop","dash","pinch","milliliterPerCC","deciliter",
-  "coffeeSpoon", "fluidDram","teaspoonUS","teaspoonUK","tablespoonUS",
-  "tablespoonUK", "fluidOunceUS","fluidOunceUK","cupUS","cubicInch",
-  "gillUS","gillUK","pintUS","pintUK","quartUS","liter","gallonUS",
-  "gallonUK","TwoPointFiveCan","TenCan"]).
+  elements(["drop","dash","pinch","milliliterPerCC","deciliter","coffeeSpoon","fluidDram",
+             "teaspoonUS","teaspoonUK","tablespoonUS","tablespoonUK","fluidOunceUS",
+             "fluidOunceUK","cupUS","cubicInch","gillUS","gillUK","pintUS","pintUK",
+             "quartUS","liter","gallonUS","gallonUK","TwoPointFiveCan","TenCan"]).
 
 generate_ChangeCookingUnit_1_toCookingUnit_Cookings() ->
-  elements(["drop","dash","pinch","milliliterPerCC","deciliter",
-  "coffeeSpoon", "fluidDram","teaspoonUS","teaspoonUK","tablespoonUS",
-  "tablespoonUK", "fluidOunceUS","fluidOunceUK","cupUS","cubicInch",
-  "gillUS","gillUK","pintUS","pintUK","quartUS","liter","gallonUS",
-  "gallonUK","TwoPointFiveCan","TenCan"]).
+  elements(["drop","dash","pinch","milliliterPerCC","deciliter","coffeeSpoon","fluidDram",
+             "teaspoonUS","teaspoonUK","tablespoonUS","tablespoonUK","fluidOunceUS",
+             "fluidOunceUK","cupUS","cubicInch","gillUS","gillUK","pintUS","pintUK",
+             "quartUS","liter","gallonUS","gallonUK","TwoPointFiveCan","TenCan"]).
 
 generate_ChangeCookingUnit_1() ->
-  ?LET(
-    {Pr_ChangeCookingUnit_1_CookingValue,
-     Pr_ChangeCookingUnit_1_fromCookingUnit_Cookings,
-     Pr_ChangeCookingUnit_1_toCookingUnit_Cookings},
-    {generate_ChangeCookingUnit_1_CookingValue(),    
-     generate_ChangeCookingUnit_1_fromCookingUnit_Cookings(),
-     generate_ChangeCookingUnit_1_toCookingUnit_Cookings()},
-    [Pr_ChangeCookingUnit_1_CookingValue,
-     Pr_ChangeCookingUnit_1_fromCookingUnit_Cookings, 
-     Pr_ChangeCookingUnit_1_toCookingUnit_Cookings]
-  ).
+  ?LET({Pr_ChangeCookingUnit_1_CookingValue,
+        Pr_ChangeCookingUnit_1_fromCookingUnit_Cookings,
+        Pr_ChangeCookingUnit_1_toCookingUnit_Cookings},
+       {generate_ChangeCookingUnit_1_CookingValue(),    
+        generate_ChangeCookingUnit_1_fromCookingUnit_Cookings(),
+        generate_ChangeCookingUnit_1_toCookingUnit_Cookings()},
+       [Pr_ChangeCookingUnit_1_CookingValue,
+        Pr_ChangeCookingUnit_1_fromCookingUnit_Cookings, 
+        Pr_ChangeCookingUnit_1_toCookingUnit_Cookings]).
 \end{lstlisting}
 
 The extension has created a single generator for the main element named "generate\_ChangeCookingUnit\_1()" which recursively calls 3 more generators for the 3 elements described above, and using the instances created to form a 3-element list. 
 
 One thing worth noticing is that instead of simply using a float() generator for the double field of the Web Service, we use a wrapper that converts it to a string. This is done because of erlsom limitations. Specifically, erlsom treats some types defined in the XSD schemas natively while turns everything else to a string. This leads to irregularities such as using a long instead of an int in the schema to require a string instead of an integer (without considering the range). This sort of irregularity is taken into account by the extension which creates the string wrappers wherever necessary.
 
-\subsection{Response Property}
+\subsection{Automatic Creation of Properties from WSDL Operations}
 
 The Proper extension also creates a function for each web service operation that invokes this operation with parameterized arguments and a small property to test that the Service always responds for random testcases without returning malformed XML or a Soap Fault for random (possibly corner) cases. For the Cooking service we described above there is a single soap operation supported, which is defined in the following WSDL specification exerpt:
 
@@ -311,7 +301,7 @@ Finally, the extension also uses erlsom to output a .hrl file that describes the
 
 We will see how these can be used in later sections.
 
-\section{Response Testing}
+\section{Response Testing of Web Services}
 
 (? Den ekana akoma to change gia na kanei compile apeftheias ston kwdika gia response testing ?)
 
@@ -440,27 +430,22 @@ false
 In our implementation we assume that the string c which is supposed to contain at its first character the character that should be removed from the string, is not empty. We have two choices to fix it, either fix our implementation, or remove this testcase from the generator. To show how easy it is to change the generators created by the extension we choose the latter: we change the generator of c to:
 
 \begin{lstlisting}
-generate_delete_1_c() -> 
-	?LET(
-		Len, 
-		range(1,1), 
-		vector(Len, integer(32,127))
-	).
+generate_delete_1_c() ->
+  ?LET(Len, range(1,1), vector(Len, integer(32,127))).
 \end{lstlisting}
 We could change it to range(1,inf) or actually remove the ?LET macro, but we'd have to be carefull not to actually change the output of the generator to a char instead of a non-empty char list.
 
 Now only valid testcases are created. Testing the response property again we get:
 \begin{lstlisting}
-> proper:quickcheck(
-        proper_output:prop_delete_responds()).
+> proper:quickcheck(proper_output:prop_delete_responds()).
 ....(100 dots) .....
 OK: Passed 100 test(s).
 true
 \end{lstlisting}
 
-\section{RESTfull Property Based Testing}
+\section{Property-based Testing of RESTful Web Services}
 
-Restfull web services are web services compliant to a few constraints, the main one having to do with state: Each request from any client must contain all the information needed by the service to handle the request. This makes property-based testing of these services relatively easy, since each test is self-contained and does not affect the outcome of other tests. 
+Restful web services are web services compliant to a few constraints, the main one having to do with state: Each request from any client must contain all the information needed by the service to handle the request. This makes property-based testing of these services relatively easy, since each test is self-contained and does not affect the outcome of other tests. 
 
 Let's see the delete example in more depth now. 
 
@@ -573,5 +558,16 @@ And checking the property now:
 OK: Passed 100 test(s).
 true
 \end{lstlisting}
+
+\section{Related Work}
+Move this after Introduction??
+
+Here we will refer to tools like monadWS~\cite{monadWS@AST-11} and
+many other such great works...
+
+\section{Concluding Remarks}
+
+\bibliographystyle{eptcs}
+\bibliography{ws}
 
 \end{document}
