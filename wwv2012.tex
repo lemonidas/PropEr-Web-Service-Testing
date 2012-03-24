@@ -50,7 +50,7 @@
 
 \section{Introduction}
 
-We describe an extension of PropEr to accomodate property based testing of web services. This extension receives the URL of a Web Service (or more accurately the url of the Web Service's WSDL specification), parses the specification and creates an output file containing generators, calling functions and sample properties for all the input messages and types required by the Web Service to be invoked. The output file can be automatically compiled and used for response testing of web services with random, yet structurally valid testcases. In addition, the automatically created PropEr generators and properties can be easily modified, allowing the user to write properties the web service should have (? Edw dn m aresei to have), utilizing the full power of Erlang and PropEr.
+We describe an extension of PropEr to accomodate WSDL-guided property-based testing of web services. This extension receives the URL of a Web Service (or more accurately the url of the Web Service's WSDL specification), parses the specification and creates an output file containing generators and properties for all the SOAP Web Service operations. The output file can be automatically compiled and used for response testing of Web Services with random, yet structurally valid testcases. In addition, the automatically created PropEr generators and properties can be easily modified, allowing the user to write properties the Web Service should satisfy, utilizing the full power of Erlang and PropEr.
 
 \section{System Architecture}
 
