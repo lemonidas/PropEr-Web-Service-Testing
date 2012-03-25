@@ -466,7 +466,7 @@ true
 
 \section{Property-based Testing of RESTful Web Services}
 
-Restful web services are web services compliant to a few constraints, the main one having to do with state: Each request from any client must contain all the information needed by the service to handle the request. This makes property-based testing of these services relatively easy, since each test is self-contained and does not affect the outcome of other tests. 
+Restful Web Services are Web Services compliant to a few constraints, the main one having to do with state: Each request from any client must contain all the information needed by the service to handle the request. This makes property-based testing of these services relatively easy, since each test is self-contained and does not affect the outcome of other tests. 
 
 Let's see the delete example in more depth now. 
 
@@ -500,24 +500,22 @@ prop_delete_removes_every_x() ->
   end).
 \end{lstlisting}
 
+% I allagi gia handling tou unbounded list (san ta string) se list(integer(32,127)) eftiakse to shrinking. Prepei na kanw kati kai gia to non empty me ena optional ?SUCHTHAT pithanotata. 
+
 Now checking this property with proper yields the following results:
+
 \begin{lstlisting}
 > proper:quickcheck(proper_output:prop_delete_removes_every_x()).
-.......................!
-Failed: After 24 test(s).
-[[92,62,59,97,51,79,76,86,96,75,38,76,51,57,125,37,121,53,57,66,
-67,36,96,89,100,58,38,85,88,121,65,101,106,46,58,32,123,60,
-117,34,106,42,110,127,40,51,75,124,34,94,115,76],[57]]
+............!
+Failed: After 12 test(s).
+[[33,42,111,43,99,45,67,52,122,52,38,122],[52]]
 
-Shrinking ................................(32 time(s))
-[[32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,
-32,32,32,32,32,32,32,33,32,32],[32]]
+Shrinking .........(9 time(s))
+[[32,32],[32]]
 false
 \end{lstlisting}
 
-We see that we find after a while a counter-example, however the shrink does not work exactly as the non-web service case. This is mostly because of the different generators used to create these arguments, since the shrinking is now handled differently.
-
-(? Afou to parapanw ginei ascii list logika tha allaksei kai to shrinking behavior tou, twra ofeiletai sto oti to me to ?LET wraper dn kanei shrink parapanw ?)
+We see that we find a faulty testcase in just a few tests and PropEr manages to shrink it to find the essence of the bug.
 
 Now we show another example of testing a RestFul Web Service, to show some limitations of our implementation. Going back to the Cooking service, a simple property that should be valid in it would be if we convert something and then convert the answer back we should get the initial number.
 
@@ -538,7 +536,7 @@ prop_back_and_forth_is_equal() ->
     end).
 \end{lstlisting}
 
-Basically, we break down the arguments to the sub-elements, invoke the web service, reinvoke the web service with the answer and the other two arguments flipped and compare the result. 
+Basically, we break down the arguments to the sub-elements, invoke the Web Service, reinvoke the Web Service with the answer and the other two arguments flipped and compare the result. 
 
 Testing this property we receive a (not unexpected) failure:
 
@@ -546,11 +544,20 @@ Testing this property we receive a (not unexpected) failure:
 > proper:quickcheck(proper_output:prop_back_and_forth_is_equal(), 5).
 !
 Failed: After 1 test(s).
-[[45,49,46,54,50,55,56,54,56,51,51,53,48,55,51,56,50,48,55,50,54,57,52,101,45,48,49],[103,97,108,108,111,110,85,75],[116,97,98,108,101,115,112,111,111,110,85,83]]
+[[45,49,46,54,50,55,56,54,56,51,51,53,48,55,51,56,50,48,55,50,54,57,52,101,45,48,49],
+ [103,97,108,108,111,110,85,75],
+ [116,97,98,108,101,115,112,111,111,110,85,83]]
 
 Shrinking ...(3 time(s))
-[[48,46,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,101,43,48,48],[100,114,111,112],[100,114,111,112]]
+[[48,46,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,101,43,48,48],
+ [100,114,111,112],[100,114,111,112]]
 false
+\end{lstlisting}
+
+The shrinked counter-example, if viewed as a string is:
+
+\begin{lstlisting}
+["0.00000000000000000000e+00", "drop", "drop"]
 \end{lstlisting}
 
 Basically, it fails to produce the same result even if there is no change! A closer look with a few io:formats will reveal the problem : Floating point arithmetic. The floating point numbers created as arguments by proper are converted to Strings with some error in accuracy and the 2 subsequent calls include even more arithmetical errors. If we change the equality check to a small difference check (keeping in mind that erlsom represented those numbers as strings) we change the property to:
