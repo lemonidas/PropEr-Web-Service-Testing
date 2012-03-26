@@ -50,11 +50,15 @@
 
 \section{Introduction}
 
+% Something about the importance of WS?
+Web Services are of increasing importance in modern Web Systems
+
 We describe an extension of PropEr to accomodate WSDL-guided property-based testing of web services. This extension receives the URL of a Web Service (or more accurately the url of the Web Service's WSDL specification), parses the specification and creates an output file containing generators and properties for all the SOAP Web Service operations. The output file can be automatically compiled and used for response testing of Web Services with random, yet structurally valid testcases. In addition, the automatically created PropEr generators and properties can be easily modified, allowing the user to write properties the Web Service should satisfy, utilizing the full power of Erlang and PropEr.
 
 \section{System Architecture}
 
-Picture Here
+
+\includegraphics{PropErWebFramework.png}
 
 The picture above shows the architecture of our testing framework. Firstly, we get the WSDL specification of the Web Service. This specification is then fed into two different erlang tools, Yaws and Xmerl, which will be briefly described later on in this section. Using xmerl, we extract all the type information associated with the WSDL specification, while using yaws we extract all supported (SOAP) operations. The extracted information is then used to create a testing file (erlang code) that contains PropEr generators and properties ready for use. Then, the user can (optionally) modify the testing file to add his own properties or refine the generators. The testing file is then given as input to PropEr, which generates random testcases, invokes the Web Service (using Yaws as a SOAP wrapper) and then analyzes the result.
 
