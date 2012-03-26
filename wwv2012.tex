@@ -46,7 +46,7 @@
 
 \begin{abstract}
 
-With Web Services becoming a significant part in designing a modern Web Systems, creating an easy-to-use but powerful and expressive testing framework is of increasing importance. One such testing approach is property-based testing (PBT): the user specifies the structure of valid inputs and writes expected input-output relations while a PBT tool handles the rest - random testcase creation, execution and response analysis. In this paper, we present a tool that uses the WSDL specification of a Web Service to create generators for PropEr - a PBT framework in Erlang similar to Haskell's Quickcheck. The output of our tool - an erlang source file - can be used without any user input to test the Web Service using randomly generated, structurally valid testcases; one can also easily modify the file both to add semantic information to the generators and to write properties to test for deeper Web Service functionality.
+With Web Services becoming a significant part in designing a modern Web System, creating an easy-to-use but powerful and expressive testing framework is of increasing importance. One such testing approach is property-based testing (PBT): the user specifies the structure of valid inputs and writes expected input-output relations while a PBT tool handles the rest - random testcase creation, execution and response analysis. In this paper, we present a tool that uses the WSDL specification of a Web Service to create generators for PropEr - a PBT framework in Erlang similar to Haskell's Quickcheck. The output of our tool - an erlang source file - can be used without any user input to test the Web Service using randomly generated, structurally valid testcases; one can also easily modify the file both to add semantic information to the generators and to write properties to test for deeper Web Service functionality.
 
 \end{abstract}
 
@@ -54,7 +54,7 @@ With Web Services becoming a significant part in designing a modern Web Systems,
 
 % Something about the importance of WS?
 
-We describe an extension of PropEr to accomodate WSDL-guided property-based testing of web services. This extension receives the URL of a Web Service (or more accurately the url of the Web Service's WSDL specification), parses the specification and creates an output file containing generators and properties for all the SOAP Web Service operations. The output file can be automatically compiled and used for response testing of Web Services with random, yet structurally valid testcases. In addition, the automatically created PropEr generators and properties can be easily modified, allowing the user to write properties the Web Service should satisfy, utilizing the full power of Erlang and PropEr.
+%We describe an extension of PropEr to accomodate WSDL-guided property-based testing of web services. This extension receives the URL of a Web Service (or more accurately the url of the Web Service's WSDL specification), parses the specification and creates an output file containing generators and properties for all the SOAP Web Service operations. The output file can be automatically compiled and used for response testing of Web Services with random, yet structurally valid testcases. In addition, the automatically created PropEr generators and properties can be easily modified, allowing the user to write properties the Web Service should satisfy, utilizing the full power of Erlang and PropEr.
 
 \section{System Architecture}
 
