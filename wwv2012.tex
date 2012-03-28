@@ -8,12 +8,12 @@
 
 %%% PACKAGES
 \usepackage{booktabs} % for much better looking tables
-\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{array}    % for better arrays (eg matrices) in maths
 \usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
 \usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
-\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{subfig}   % make it possible to include more than one captioned figure/table in a single float
 \usepackage{listings}
-% These packages are all incorporated in the memoir class to one degree or another...
+\usepackage{xspace}
 
 %%% HEADERS & FOOTERS
 \usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
@@ -36,9 +36,12 @@
         breaklines=true,
         breakatwhitespace=true}
 
-\title{Automatic WSDL-guided Property-based Testing of Web Services}
+\newcommand{\LET}{\texttt{?LET}\xspace}
+
+\title{Automatic WSDL-guided Test Case Generation\\
+       for Property-Based Testing of Web Services}
 \author{Leonidas Lampropoulos \and Konstantinos Sagonas}
-\def\titlerunning{Automatic WSDL-guided Property-based Testing of Web Services}
+\def\titlerunning{Automatic WSDL-guided Test Case Generation for Property-Based Testing of Web Services}
 \def\authorrunning{L. Lampropoulos and K. Sagonas}
 
 \begin{document}
@@ -180,16 +183,16 @@ The mapping of the intermediate tuples to PropEr generators is pretty straightfo
 
 \begin{lstlisting}
 generate_Order_1_products_ProductType_name() -> 
-  list(integer(32,127)).
+  list(integer(32, 127)).
 
 generate_Order_1_products_ProductType_price() ->  
   ?LET(Gen, integer(1,inf), integer_to_list(Gen)).
 
 generate_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType() -> 
-  elements(["visa","paypal","deposit"]).
+  elements(["visa", "paypal", "deposit"]).
 
 generate_Order_1_products_ProductType_shipInfo_ShipInfo_address() -> 
-  list(integer(32,127)).
+  list(integer(32, 127)).
 
 generate_Order_1_products_ProductType_shipInfo_ShipInfo() -> 
   ?LET(
@@ -215,21 +218,13 @@ generate_Order_1_products_ProductType() ->
   ).
 
 generate_Order_1_products() -> 
-  ?LET(
-    Len, 
-    range(1,inf), 
-    vector(Len, generate_Order_1_products_ProductType())
-  ).
+  ?LET(Len, range(1, inf), vector(Len, generate_Order_1_products_ProductType())).
 
 generate_Order_1() -> 
-  ?LET(
-    {Pr_Order_1_products},
-    {generate_Order_1_products()},
-    [Pr_Order_1_products]
- ).
+  ?LET(Pr_Order_1_products, generate_Order_1_products(), [Pr_Order_1_products]).
 \end{lstlisting}
 
-The above code reveals the generation method. Simple types are mapped almost directly like the "PaymentType", with special care taken if needed to add a wrapper that converts the generated data to string if that is required by Yaws. Complex types on the other hand, need to be represented as lists for Yaws to accept them, and we use ?LET macros to that end. 
+The above code reveals the generation method. Simple types are mapped almost directly like the "PaymentType", with special care taken if needed to add a wrapper that converts the generated data to string if that is required by Yaws. Complex types on the other hand, need to be represented as lists for Yaws to accept them, and we use \LET macros to that end. 
 % Include the following or not?
 PropEr would allow for simplicity to create less verbose versions of these generators with a little extra care for unique naming. For example the last generator could have been written as:
 
@@ -238,7 +233,7 @@ generate_Order_1() ->
   [generate_Order_1_products()].
 \end{lstlisting}
 
-While in such a small example this would appear preferable, it actually makes things more difficult for the user, should he want to modify the generated test data or the generators. The importance of the ?LET macro can be seen in the following example: Suppose a Web Service has an operation that takes as input an element with an "ISBN" field amongst others (a semantically valid ISBN is a unique identifier for a book and consists of 10 single digits, the last of which is determined by the previous nine via a congruence). For such a Web Service, our tool would generate code of the following form:
+While in such a small example this would appear preferable, it actually makes things more difficult for the user, should he want to modify the generated test data or the generators. The importance of the \LET macro can be seen in the following example: Suppose a Web Service has an operation that takes as input an element with an "ISBN" field amongst others (a semantically valid ISBN is a unique identifier for a book and consists of 10 single digits, the last of which is determined by the previous nine via a congruence). For such a Web Service, our tool would generate code of the following form:
 
 \begin{lstlisting}
 generate_opName() ->
@@ -266,7 +261,7 @@ generate_opName() ->
   ).
 \end{lstlisting}
 
-This is only possible with the use of the ?LET macro that allows you to modify and combine the generated data. 
+This is only possible with the use of the \LET macro that allows you to modify and combine the generated data. 
 
 
 \subsection{Automatic Creation of Properties from WSDL Operations}
@@ -290,7 +285,6 @@ These functions both invoke the "placeOrder" operation of the Web Service feedin
 Finally, the property that is automatically created is the following:
 
 \begin{lstlisting}
-
 prop_placeOrder_responds() ->
   ?FORALL(Args, generate_Order_1(),
     begin
@@ -347,8 +341,7 @@ Where the Cookings simple type is a large enumeration with most of the values om
 
 % Change names of functions (wsdl_handler:generate for instance)?
 \begin{lstlisting}
-Erlang R15B (erts-5.9) [source] [64-bit] [smp:4:4] 
-[async-threads:0] [hipe] [kernel-poll:false]
+Erlang R15B (erts-5.9) [source] [64-bit] [smp:4:4] [async-threads:0] [hipe] [kernel-poll:false]
 
 Eshell V5.9  (abort with ^G)
 1> wsdl_handler:generate("http://www.webservicex.net/
@@ -356,8 +349,7 @@ ConvertCooking.asmx?WSDL").
 ok
 2> c(proper_output).
 {ok,proper_output}
-3> proper:quickcheck(
-        proper_output:prop_ChangeCookingUnit_responds()).
+3> proper:quickcheck(proper_output:prop_ChangeCookingUnit_responds()).
 ....(100 dots) .....
 OK: Passed 100 test(s).
 true
@@ -398,24 +390,21 @@ We used this code to implement and publish a simple Web Service in tomcat. After
 -include("proper_output.hrl").
 
 -define(PREFIX, "properns").
--define(WSDL_URL, "http://localhost:8080/
-    DeleteProject/services/Delete?WSDL").
+-define(WSDL_URL, "http://localhost:8080/DeleteProject/services/Delete?WSDL").
 
 -export([call_delete/1, call_delete/2]).
 -export([answer_delete/1]).
 
 generate_delete_1_in() -> 
-  list(integer(32,127)).
+  list(integer(32, 127)).
 
 generate_delete_1_c() -> 
-  list(integer(32,127)).
+  list(integer(32, 127)).
 
 generate_delete_1() -> 
-	?LET(
-		{Pr_delete_1_in, Pr_delete_1_c},
-		{generate_delete_1_in(), generate_delete_1_c()},
-		[Pr_delete_1_in, Pr_delete_1_c]
-	).
+  ?LET({Pr_delete_1_in, Pr_delete_1_c},
+       {generate_delete_1_in(), generate_delete_1_c()},
+       [Pr_delete_1_in, Pr_delete_1_c]).
 
 call_delete(Arguments) ->
   inets:start(),
@@ -459,7 +448,7 @@ In our implementation we assume that the string c which is supposed to contain a
 generate_delete_1_c() ->
   ?LET(Len, range(1,1), vector(Len, integer(32,127))).
 \end{lstlisting}
-We could change it to range(1,inf) or actually remove the ?LET macro, but we'd have to be carefull not to actually change the output of the generator to a char instead of a non-empty char list.
+We could change it to range(1,inf) or actually remove the \LET macro, but we'd have to be carefull not to actually change the output of the generator to a char instead of a non-empty char list.
 
 Now only valid testcases are created. Testing the response property again we get:
 \begin{lstlisting}
