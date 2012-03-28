@@ -48,10 +48,35 @@
 \maketitle
 
 \begin{abstract}
+With web services already being key components of modern web systems,
+automatic and easy-to-use but at the same time powerful and expressive
+testing frameworks for web services are increasingly important. Our
+work aims at fully automatic property-based testing of web services:
+ideally the user only specifies properties that the web service is
+expected to satisfy, in the form of input-output relations, and the
+system handles all the rest. In this paper we present in detail the
+component which lies at the heart of this system: how the WSDL
+specification of a web service is used to automatically create test
+case generators that can be fed to PropEr, a QuickCheck-like
+property-based testing tool, to create structurally valid random
+testcases for its services. Although the process is fully automatic,
+out tool optionally allows the user to easily modify its output to
+either add semantic information to the generators or write properties
+that test for more involved functionality of the web services.
 
-With Web Services becoming a significant part in designing a modern Web System, creating an easy-to-use but powerful and expressive testing framework is of increasing importance. One such testing approach is property-based testing (PBT): the user specifies the structure of valid inputs and writes expected input-output relations while a PBT tool handles the rest - random testcase creation, execution and response analysis. In this paper, we present a tool that uses the WSDL specification of a Web Service to create generators for PropEr - a PBT framework in Erlang similar to Haskell's Quickcheck. The output of our tool - an erlang source file - can be used without any user input to test the Web Service using randomly generated, structurally valid testcases; one can also easily modify the file both to add semantic information to the generators and to write properties to test for deeper Web Service functionality.
-
+%% One such testing approach is property-based testing (PBT): the user
+%% specifies the structure of valid inputs and writes expected
+%% input-output relations while a PBT tool handles the rest - random
+%% testcase creation, execution and response analysis. In this paper, we
+%% present a tool that uses the WSDL specification of a Web Service to
+%% create generators for PropEr - a PBT framework in Erlang similar to
+%% Haskell's Quickcheck. The output of our tool, an erlang source file,
+%% can be used without any user input to test the Web Service using
+%% randomly generated, structurally valid testcases; one can also easily
+%% modify the file both to add semantic information to the generators and
+%% to write properties to test for deeper Web Service functionality.
 \end{abstract}
+
 
 \section{Introduction}
 
@@ -91,9 +116,9 @@ Xmerl is an XML parser, included in the erlang/OTP distribution. It transforms a
 
 The main idea behind the extension is to use PropEr to do property based testing on web services. This extension helps the user by creating generators, sample properties and call functions so that the user focuses on the important task - writing the property. 
 
-\subsection{Automatic Creation Generators from WSDL Types}
+\subsection{Automatic Creation of Test Case Generators from WSDL Types}
 
-The most important part of our tool is the automatic creation of PropEr generators from the types described in the WSDL specification. To that end, we introduce an intermediate erlang representation of the WSDL types; a representation that can be directly mapped to PropEr generators, while at the same time is easier to work with and handle all constraining facets of the XSD Schema. The following XSD Schema is an example of a type specification of a Web Service which we will use to show how the generators are created.
+The most important part of our tool is the automatic creation of PropEr generators from the types described in the WSDL specification. To that end, we introduce an intermediate Erlang representation of the WSDL types; a representation that can be directly mapped to PropEr generators, while at the same time is easier to work with and handles all constraining facets of the XSD Schema. The following XSD Schema is an example of a type specification of a Web Service which we will use to show how the generators are created.
 
 \begin{lstlisting}
   <complexType name="ProductType">
@@ -128,15 +153,15 @@ The most important part of our tool is the automatic creation of PropEr generato
 
 % Na mpei edw kapoia perigrafi tou parapanw sximatos i den xreiazetai?
 
-Suppose we want to create a generator for an operation "placeOrder" of a Web Service that takes as an argument a single element "Order". In the front end of the implementation, we use the information provided by the xmerl module after parsing the schema to go through all elements and their types recursively, passing through all the nodes of the XSD schema in a DFS style. In every such node, we create a tuple that contains both name and type information for the node and all its succesors. 
+Suppose we want to create a generator for an operation \texttt{"placeOrder"} of a Web Service that takes as an argument a single element \texttt{"Order"}. In the front end of the implementation, we use the information provided by the xmerl module after parsing the schema to go through all elements and their types recursively, passing through all the nodes of the XSD schema in a DFS style. In every such node, we create a tuple that contains both name and type information for the node and all its succesors. 
 
 Simple types yield tuples that contain only type information, along with an atom to facilitate compatibility with Erlsom and Yaws. In our example, we encounter three different simple types. Two of them, namely xsd:string and xsd:positiveInteger represent primitive datatypes of the WSDL specification, where as "tns:PaymentType" is a user defined simple type - a restriction upon the string type. The tuples associated with these types in our tool are:
 
 \begin{lstlisting}
-xsd:positiveInteger : {erlsom_string,integer,{1,inf}}
+xsd:positiveInteger : {erlsom_string, integer, {1, inf}}
 \end{lstlisting}
 
-The positiveInteger primitive datatype is mapped by default to the above tuple. The first argument 'erlsom\_string' states that for compatibility with Yaws it must be converted to String before wrapped in valid SOAP structure, the second argument that the base PropEr generator is 'integer()' and the last denotes the range (minimum and maximum value of the generated value) is between 1 and infinity. 
+The positiveInteger primitive datatype is mapped by default to the above tuple. The first argument \texttt{'erlsom\_string'} states that for compatibility with Yaws it must be converted to String before wrapped in valid SOAP structure, the second argument that the base PropEr generator is \texttt{integer()} and the last denotes the range (minimum and maximum value of the generated value) is between 1 and infinity. 
 
 \begin{lstlisting}
 xsd:string : {list,{{range,0,inf},{erlsom_int,integer,{32,127}}}}
