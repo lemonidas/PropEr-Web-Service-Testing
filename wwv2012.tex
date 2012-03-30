@@ -59,7 +59,7 @@ component which lies at the heart of this system: how the WSDL
 specification of a web service is used to automatically create test
 case generators that can be fed to PropEr, a QuickCheck-like
 property-based testing tool, to create structurally valid random
-testcases for its services. Although the process is fully automatic,
+testcases for its operations. Although the process is fully automatic,
 our tool optionally allows the user to easily modify its output to
 either add semantic information to the generators or write properties
 that test for more involved functionality of the web services.
@@ -68,7 +68,57 @@ that test for more involved functionality of the web services.
 
 \section{Introduction}
 
-% Something about the importance of WS?
+
+% Web services + their testing
+
+Web services are an essential part in designing a modern web system, 
+especially since the appearance of the System Oriented Architecture (SOA)
+model. Testing them, however, is an extremely slow process, mainly due to
+the overly verbose nature of the XML SOAP messages involved. Writing 
+testcases by hand is not a practical option, while existing tools for 
+testing Web Services help speed up the proccess, but in our opinion fail 
+to assist the tester in testing for involved web service functionality
+in an easy and straightforward manner.
+
+% Property based testing + PropEr
+
+One approach that could be used to achieve this, is property-based testing (PBT).
+The idea of expressing properties a program must satisfy in the form of 
+input-output relations, and present the general structure of valid input 
+messages, while letting the system handle the creation of progressively more 
+complex testcases to find a counter-example for the property, is creating a 
+growing fan base, especially in functional programming communities where 
+tools such as QuickCheck (Haskell) or PropEr (Erlang) exist. Property-based 
+testing applied to web services shares the same problem as other testing 
+approaches: the generators would be most cumbersome to write manually. This is
+where our tool comes in. Automatically creating generators for PropEr based on 
+the WSDL specification of the web service, while also allowing for easy 
+modification of them and use in writing expressive properties is our ultimate goal.
+
+% What this paper does + generation techniques
+
+In this paper we describe the methods used to handle fully automatic
+test case generation based on the WSDL specification of a web service.
+This idea has already appeared in a number of papers, however the 
+related tools have yet to mature, while our design can lead to much 
+deeper and more thorough testing possibilities because of the integration
+with PropEr. In addition, we present some example uses of these generators 
+in automatically testing web services for unexpected behaviors. 
+
+% Paper outline
+
+The rest of the paper is organized as follows.
+The next section presents the proposed system architecture of the final 
+product. In addition we briefly introduce the key components used to 
+create our tool, such as PropEr, Yaws and xmerl.
+Section 3 describes the techniques used to handle automatic creation of
+test case generators and properties, along with some examples to show 
+the form of the output code. 
+In section 4, we show how to use our tool to test a single operation of 
+a web service, fully automatically.
+Section 5 compares our work with related research and tools already 
+available, while the last section draws conclusions and presents ideas 
+for future work.
 
 %We describe an extension of PropEr to accomodate WSDL-guided property-based testing of web services. This extension receives the URL of a Web Service (or more accurately the url of the Web Service's WSDL specification), parses the specification and creates an output file containing generators and properties for all the SOAP Web Service operations. The output file can be automatically compiled and used for response testing of Web Services with random, yet structurally valid testcases. In addition, the automatically created PropEr generators and properties can be easily modified, allowing the user to write properties the Web Service should satisfy, utilizing the full power of Erlang and PropEr.
 
