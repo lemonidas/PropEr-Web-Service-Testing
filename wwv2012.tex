@@ -134,7 +134,7 @@ The picture above shows the architecture of our testing framework. Firstly, we g
 
 \subsection{WSDL}
 
-WSDL is the leading specification for web services in XML format, describing the web service in full: operations, input and output message types, locations, bindings, port types etc. 
+WSDL is the leading specification for web services in XML format, describing the web service in full: operations, input and output message types, locations, bindings, port types etc.
 
 Every WSDL specification contains (or references) an XSD schema inside, describing the types of the messages needed to invoke the Web Service. The types of these messages are divided in two large categories: simple and complex types. Simple types can be either primitive datatypes, such as floats, ints, strings, etc., aggregates of the above, such as lists and unions, or restricted versions of them, like enumerations or range constraints. Complex types on the other hand are derived (extented or restricted) based on other types, which in turn are either simple or complex. Usually, complex types are created by forming element aggregates - sequences or choices. 
 
@@ -645,12 +645,47 @@ true
 \end{lstlisting}
 
 \section{Related Work}
-Move this after Introduction??
 
-Here we will refer to tools like monadWS~\cite{monadWS@AST-11} and
-many other such great works...
+Research in testing web services has seen a lot of growth in the past few years. 
+A lot of tools have emerged handling disparate aspects of testing, from functional
+to integration and regression testing ~\cite{SOATesting@springerlink-09}. Our tool
+can handle automatic functional testing with structurally valid testcases created
+based on the WSDL specification of a web service. 
+Early reseach work with this idea include ~\cite{bartolini@ICSOC-08} and ~\cite{zhang@IC-08}, and most existing tools have expanded on this idea of test case generation based on a static analysis of the WSDL specification.
+
+% Currently similar, goal best? (vevaia to goal psiloiparxei idi sto diko mas)
+
+Soap UI: does not auto-generate input, URL reference?
+
+WSDLTest: Similar in generation strategy, yet user input happens for 
+every script if modifications and assertions are needed, in PropEr, 
+generators + properties can handle the most complex of cases
+~\cite{wsdltest@IEEE06}
+
+Parasoft's SOATest : -visual inspection of results (PropEr can 
+verify with properties)
+Also Url reference
+
+WS-Taxi: First outlined in AST-07, then described in 08. 
+Provides data generation, also lacks test oracle. 
+~\cite{taxi@IC-08}, ~\cite{partition@AST-07}
+
+MonadWS: Promising comparison with SoapUI and SoapTest, yet also no output validation (ektos an katalava kati lathos apo to paper)
+~\cite{monadWS@AST-11}
+
+Automatic Testing of Web Services in Haskell Platform? Den vrika .bib, einai to pio kontino se afto pou kanoume kai einai apo tous idious me to monad.
+
+All in all, what makes our tool stand out from the rest is that it 
+was designed for use with a property based testing tools with the 
+power of PropEr. Our tool handles automatic test data generation as
+efficiently and automatically as all other available tools, yet its
+design allows for far faster and powerful testing, using properties 
+to automatically validate an arbirtrary number of progressively more 
+complex testcases.
 
 \section{Concluding Remarks}
+
+
 
 \bibliographystyle{eptcs}
 \bibliography{ws}
