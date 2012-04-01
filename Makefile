@@ -5,7 +5,7 @@ PAPER = wwv2012
 
 default: $(PAPER).pdf
 
-%.pdf: %.tex
+%.pdf: %.tex *.png *.bib
 	latexmk -pdf $*
 
 %.jpg: %.pdf
