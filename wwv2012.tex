@@ -88,8 +88,8 @@ input-output relations, and present the general structure of valid input
 messages, while letting the system handle the creation of progressively more 
 complex testcases to try to find a counter-example for the property, is creating 
 a growing fan base, especially in functional programming communities where 
-tools such as QuickCheck (Haskell) or PropEr (Erlang) exist. Property-based 
-testing applied to web services shares the same problem as other testing 
+tools such as QuickCheck (Haskell) or PropEr ~\cite{proper_tool}(Erlang) exist. 
+Property-based testing applied to web services shares the same problem as other testing
 approaches: the generators would be most cumbersome to write manually. This is
 where our tool comes in: Automatically creating generators for PropEr based on 
 the WSDL specification of the web service, while also allowing for easy 
@@ -140,10 +140,11 @@ given as input to PropEr, which generates random testcases, invokes the seb serv
 
 WSDL is the leading specification for web services in XML format, describing the 
 web service in full: operations, input and output message types, locations, 
-bindings, port types etc.
+bindings, port types etc. ~\cite{wsdl_spec}
 
 Every WSDL specification contains (or references) an XSD schema inside, 
-describing the types of the messages needed to invoke the web service. The 
+describing the types of the messages needed to invoke the web service 
+~\cite{xsd_structure_spec}, ~\cite{xsd_datatypes_spec}. The 
 types of these messages are divided in two large categories: simple and complex 
 types. Simple types can be either primitive datatypes, such as floats, ints, 
 strings, etc., aggregates of the above, such as lists and unions, or restricted 
@@ -160,8 +161,8 @@ messages of an operation with types defined in the XSD Schema.
 
 \subsection{Yaws}
 
-Yaws is the most widely used Erlang HTTP webserver. Yaws uses an XML parser 
-called Erlsom to handle its soap message encoding/decoding, a parser module 
+Yaws is the most widely used Erlang HTTP webserver ~\cite{yaws}. Yaws uses an 
+XML parser called Erlsom to handle its soap message encoding/decoding, a parser module 
 faster and more user friendly than the xmerl module of the Erlang distribution, 
 imposing however a few additional limitations. In our framework, Yaws is used 
 at two different times: in the beginning, in order to extract all the supported 
@@ -173,11 +174,11 @@ erlang tuple to PropEr for further analysis.
 
 \subsection{xmerl}
 
-Xmerl is an XML parser, included in the erlang/OTP distribution. It transforms any 
-XML to a (rather verbose) erlang structure containing all the information contained 
-in the original XML document. In our framework, xmerl is used to parse the XSD 
-Schema of the WSDL specification into an erlang structure, in order to extract 
--afterwards the typing information nedded to create PropEr generators.
+Xmerl is an XML parser, included in the erlang/OTP distribution ~\cite{xmerl}.
+It transforms any XML to a (rather verbose) erlang structure containing all the 
+information contained in the original XML document. In our framework, xmerl is 
+used to parse the XSD Schema of the WSDL specification into an erlang structure, in 
+order to extract afterwards the typing information nedded to create PropEr generators.
 
 \section{Automatic Creation of Generators and Properties}
 
@@ -661,36 +662,43 @@ Research in testing web services has seen a lot of growth in the past few years.
 A lot of tools have emerged handling disparate aspects of testing, from functional
 to integration and regression testing ~\cite{SOATesting@springerlink-09}. Our tool
 can handle automatic functional testing with structurally valid testcases created
-based on the WSDL specification of a web service. 
-Early reseach work with this idea include ~\cite{bartolini@ICSOC-08} and ~\cite{zhang@IC-08}, and most existing tools have expanded on this idea of test case generation based on a static analysis of the WSDL specification.
+based on the WSDL specification of a web service. Early reseach work with this 
+idea include ~\cite{bartolini@ICSOC-08} and ~\cite{zhang@IC-08}, while most 
+existing tools have expanded on this idea of generating XML messages based on 
+a static analysis of the WSDL specification. Most of them, however, lack in the 
+aspect of validating the results of the web service and just present them to the 
+user for inspection. 
 
 % Currently similar, goal best? (vevaia to goal psiloiparxei idi sto diko mas)
-
-Soap UI: does not auto-generate input, URL reference?
-
-WSDLTest: Similar in generation strategy, yet user input happens for 
-every script if modifications and assertions are needed, in PropEr, 
-generators + properties can handle the most complex of cases
-~\cite{wsdltest@IEEE06}
-
-Parasoft's SOATest : -visual inspection of results (PropEr can 
-verify with properties)
-Also Url reference
-
-WS-Taxi: First outlined in AST-07, then described in 08. 
-Provides data generation, also lacks test oracle. 
-~\cite{taxi@IC-08}, ~\cite{partition@AST-07}
-
-MonadWS: Promising comparison with SoapUI and SoapTest, yet also no output validation (ektos an katalava kati lathos apo to paper)
-~\cite{monadWS@AST-11}
-
-Automatic Testing of Web Services in Haskell Platform? Den vrika .bib, einai to pio kontino se afto pou kanoume kai einai apo tous idious me to monad.
+Amongst the existing frameworks and tools in the area, there are a few that 
+stand out. 
+Most notably, SoapUI ~\cite{soapUI}, one of the most complete testing frameworks
+that can handle semi-automated functional testing - amongst other things. This 
+tool however does not automatically generate sample test cases, just aids the
+user in doing so.
+Other tools, such as WSDLTest ~\cite{wsdltest@IEEE06} are similar to ours in 
+generation strategy, yet user input happens for every script if modifications 
+and assertions (for output validation) are needed. Our tool, creates generators 
+that allow random test case creation, while any modification by the user to
+refine the generators needs to take place only once and will be valid for all
+the SOAP messages generated.
+Another category of tools is that that contains WS-Taxi ~\cite{taxi@IC-08}. 
+This is one of the first tools to have been created based on the idea of WSDL-based
+testing. WS-Taxi was first outlined in 2007, ~\cite{partition@AST-07}, but as 
+stated in the related papers, while it provides automatic data generation, the 
+tool lacks a test oracle.
+Finally, there is a couple of papers and a tool that use Haskell's Quickcheck 
+to do automatic test case generation. The idea in ~\cite{ws_quickcheck} is largely 
+similar to our own: to create generators for a PBT tool to allow for automatic testing.
+The tool that spawned from this effort, monadWS ~\cite{monadWS@AST-11}, contains a 
+promising comparison with SoapUI and SoapTest, yet also does not utilize the power of
+Quickcheck for deeper validation of the results returned by the web service.
 
 All in all, what makes our tool stand out from the rest is that it 
 was designed for use with a property based testing tools with the 
 power of PropEr. Our tool handles automatic test data generation as
-efficiently and automatically as all other available tools, yet its
-design allows for far faster and powerful testing, using properties 
+efficiently and automatically as many other available tools, yet its
+design will allow for faster and powerful testing, using properties 
 to automatically validate an arbirtrary number of progressively more 
 complex testcases.
 
