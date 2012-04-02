@@ -276,7 +276,7 @@ xsd:string : {list, {{range, 0, inf}, {erlsom_int, integer, {32, 127}}}}
 \end{lstlisting}
 
 This simple type shows how strings are mapped to intermediate tuples. The first 
-argument shows that the entire tuples represents a list and the second argument 
+argument shows that the entire tuple represents a list and the second argument 
 specifies the length of the list (in this case it is arbitrary) and the inner type 
 (its intermediate representation) of the list (in this case a character - since 
 strings in Erlang are lists of numbers, the generator creates such lists with 
@@ -434,7 +434,7 @@ generated data.
 In addition to automatically creating generators, our tool also
 creates a couple of functions for each web service operation, that
 invokes this operation using Yaws. Also, it creates a small property
-to test the web service always responds for random testcases, with a
+to test that the web service always responds for random testcases, with a
 well formed SOAP message. This approach allows us to find most basic
 errors in a web service implementation identifying SOAP:Fault
 structures, since SOAP Faults are analogous to Java exceptions.
@@ -495,7 +495,7 @@ responses without having to deal with XML parsing.
 
 \section{Response Testing of Web Services} \label{sec:response_testing}
 
-The first kind of testing, that works without any user additions is response testing. Basically, 
+One kind of testing our tool can handle, that works without any user additions is response testing. Basically, 
 the output file created by the extension contains a property that invokes an operation of the 
 web service with random inputs and expects an answer for each different input. This can basically 
 check if a web service crashes for a specific input or similar unwanted behaviors. 
@@ -562,7 +562,7 @@ arguments and returned a correctly formed result each time.
 Now for an example of a service that crashes, we created our own web
 service using eclipse and tomcat. This example is a variation of an
 example about a faulty \texttt{lists:delete} function given
-in~\cite{PropEr@Erlang-11} and will be used also to see how our tool
+in~\cite{PropErTypes@Erlang-11} and will be used also to see how our tool
 fares in doing property-based testing of web services.
 
 We have a simple Java implementation of the web service logic, to make it
@@ -651,9 +651,9 @@ false
 
 In our implementation we assume that the string $c$ which is supposed
 to contain at its first character the character that should be removed
-from the string, is not empty. We have two choices to fix it, either
+from the string, is not empty. We have two options of fixing it, either
 fix our implementation, or remove this testcase from the generator. To
-show how easy it is to change the generators created by the extension
+demonstrate how easy it is to change the generators created by the extension
 we choose the latter: we change the generator of $c$ to:
 \begin{lstlisting}
 generate_delete_1_c() ->
@@ -727,12 +727,12 @@ complex testcases.
 
 \section{Concluding Remarks and Future Work}
 
-We showed how our tool can be used to automatically test web services, with a
+We demonstrated how our tool can be used to automatically test web services, with a
 different approach than the existing tools on the market. 
 One course for future work is to perfect test case generation. Our tool, 
 while still under development, can successfully test all free web
 services it was tried against, handling most types and constraining
-facets appearing in XSD schemas. However, some types and that are not
+facets appearing in XSD schemas. However, some types that are not
 frequently encountered - like some date formats or the pattern
 constraining facet - are yet to be handled by our tool and need to be addressed.
 Our main goal now, however, is to handle property-based testing of web services 
