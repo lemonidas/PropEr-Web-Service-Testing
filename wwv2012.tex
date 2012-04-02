@@ -158,6 +158,27 @@ messages of an operation with types defined in the XSD Schema.
 
 \subsection{PropEr}
 
+Property-based testing is a relatively new approach to software testing. The
+user specifies the general structure of valid inputs, together with properties
+expected to hold about the input-ouput relation. PropEr is a PBT 
+tool that can receive this information and create progressively more complex 
+test cases, execute them and then monitor the response to make sure it 
+conforms with the specified properties. In addition, should a failing test 
+case occur, PropEr will try to locate the part of the test case that is 
+actually responsible for the fault by
+simplifying (shrinking) the original test case. Since properties are written 
+in the host language (erlang), the user can utilize all of its expressivity to 
+succesfully describe a vast range of input-output relations.
+
+To use PropEr for web service testing, we first need to specify the structure
+of the SOAP messages that will be used to invoke the web service operations. 
+Then we need a property that will receive the web service's response and use 
+it for validation. Both of these, are handled by our tool. By parsing the 
+WSDL specification we create valid PropEr generators, while a sample property
+is created, that tests that no exceptions (SOAP Faults) happened and that the 
+XML response was well formed.
+
+
 \subsection{Yaws}
 
 Yaws is the most widely used Erlang HTTP webserver ~\cite{yaws}. Yaws uses an 
@@ -546,6 +567,7 @@ fares in doing property-based testing of web services.
 
 We have a simple Java implementation of the web service logic, to make it
 directly comparable with the original Erlang implementation:
+
 \begin{lstlisting}
 public Class Delete {
     private String delete(String in, char c, StringBuffer acc){
