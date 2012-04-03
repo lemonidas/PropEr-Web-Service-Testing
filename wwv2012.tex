@@ -70,45 +70,49 @@ that test for more involved functionality of the web services.
 
 % Web services + their testing
 
-Web services are an essential part in designing a modern web system, 
-especially since the appearance of the Service-Oriented Architecture (SOA).
-Testing them, however, is an extremely slow process, mainly due to
-the overly verbose nature of the XML SOAP messages involved. Writing 
-testcases by hand is not a practical option, while existing tools for 
-testing web services help speed up the process, but in our opinion fail 
-to assist the tester in testing for involved web service functionality
-in an easy and straightforward manner.
+Web Services are an essential part in designing a modern web system,
+especially since the appearance of the Service-Oriented Architecture
+(SOA). Testing them, however, is an extremely slow process, mainly due
+to the overly verbose nature of the XML SOAP messages involved which
+makes writing testcases by hand not a practical option. Many of the
+existing tools for testing web services help speed up the process, but
+in our opinion they fail to assist the tester in testing for involved
+web service functionality in an easy and straightforward manner.
 
 % Property based testing + PropEr
 
-One approach that could be used to achieve this, is property-based testing (PBT).
-The idea of expressing properties a program must satisfy in the form of 
-input-output relations, and present the general structure of valid input 
-messages, while letting the system handle the creation of progressively more 
-complex testcases to try to find a counter-example for the property, is creating 
-a growing fan base, especially in functional programming communities where 
-tools such as QuickCheck (Haskell) or PropEr ~\cite{proper_tool}(Erlang) exist. 
-Property-based testing applied to web services shares the same problem as other testing
-approaches: the generators would be most cumbersome to write manually. This is
-where our tool comes in: Automatically creating generators for PropEr based on 
-the WSDL specification of the web service, while also allowing for easy 
-modification of them and use in writing expressive properties.
+One approach that could be used to achieve this is property-based
+testing (PBT). The idea of expressing properties a program must
+satisfy in the form of input-output relations, and present the general
+structure of valid input messages, while letting the system handle the
+creation of progressively more complex testcases to try to find a
+counter-example for the property, is creating a growing fan base,
+especially in functional programming communities where tools such as
+QuickCheck (for Haskell and Erlang) or PropEr~\cite{proper_tool} (for
+Erlang) exist.
+%
+Property-based testing applied to web services shares the same problem
+as other testing approaches: the generators would be most cumbersome
+to write manually. This is where our tool comes in: Automatically
+creating generators for PropEr based on the WSDL specification of the
+web service, while also allowing for easy modification of them and use
+in writing expressive properties.
 
 % What this paper does + generation techniques
 
-In this paper we describe the methods we used to handle this automatic
-test case generation. This idea has already appeared in a number of papers, 
-however the related tools have yet to mature, while our design can lead to much 
-deeper and more thorough testing possibilities because of the integration
-with PropEr. In addition, we present some example uses of these generators 
-in automatically testing web services for unexpected behaviors. 
+In this paper we describe the methods our tool employs to handle this
+automatic test case generation. This idea has already appeared in a
+number of papers, however the related tools have yet to mature, while
+our design can lead to much deeper and more thorough testing
+possibilities because of the integration with PropEr. In addition, we
+present some example uses of these generators in automatically testing
+web services for unexpected behaviors.
 
 % Paper outline
 
 The rest of the paper is organized as follows.
-The next section presents the proposed system architecture of the final 
-product. In addition we briefly introduce the key components used to 
-create our tool, such as PropEr, Yaws and xmerl.
+The next section presents the system architecture of our tool and
+reviews its key components: PropEr, Yaws, and xmerl.
 Section~\ref{sec:automatic} describes the techniques used to handle
 automatic creation of test case generators and properties, along with
 some examples to show the form of the output code.
@@ -120,37 +124,47 @@ presents ideas for future work.
 
 \section{System Architecture} \label{sec:architecture}
 
-% Probably needs another eptcs way to add an image.(something with a "figure" maybe?)
+% Probably needs another eptcs way to add an image.(something with a
+% "figure" maybe?)
+\begin{figure}
 \includegraphics{PropErWebFramework.png}
+\caption{System architecture of our property-based testing framework.}
+\label{fig:architecture}
+\end{figure}
 
-The picture above shows the architecture of our testing framework. Firstly, we 
-get the WSDL specification of the web service. This specification is then fed 
-into two different Erlang tools, Yaws and Xmerl, which will be briefly described 
-later on in this section. Using xmerl, we extract all the type information 
-associated with the WSDL specification, while using yaws we extract needed 
-needed information for all supported (SOAP) operations. The extracted information 
-is then used to create a testing file (Erlang code) that contains PropEr generators 
-and properties ready for use. Then, the user can (optionally) modify the testing 
-file to add his own properties or refine the generators. The testing file is then 
-given as input to PropEr, which generates random testcases, invokes the Web service 
-(using Yaws as a SOAP wrapper) and then analyzes the result.
+Figure~\ref{fig:architecture} shows the architecture of our testing
+framework. Given a URI, the testing starts by obtaining the WSDL
+specification of the web service. This specification is then fed into
+two different Erlang tools, Yaws and xmerl, which will be briefly
+described later on in this section. Using xmerl we extract all the
+type information associated with the WSDL specification, while using
+Yaws we extract needed information for all supported (SOAP)
+operations. These two pieces of information are then used to create a
+testing file (Erlang code) that contains PropEr generators and
+properties ready for use. Then, the user can (optionally) modify the
+testing file to add his own properties or refine the generators. The
+testing file is then given as input to PropEr, which generates random
+testcases, invokes the Web service (using Yaws as a SOAP wrapper) and
+then analyzes the result.
 
 \subsection{WSDL}
 
-WSDL is the leading specification for web services in XML format, describing the 
-web service in full: operations, input and output message types, locations, 
-bindings, port types etc. ~\cite{wsdl_spec}
+WSDL is the leading specification for web services in XML
+format~\cite{wsdl_spec}, describing the web service in full:
+operations, input and output message types, locations, bindings, port
+types, etc.
 
-Every WSDL specification contains (or references) an XSD schema inside, 
-describing the types of the messages needed to invoke the web service 
-~\cite{xsd_structure_spec}, ~\cite{xsd_datatypes_spec}. The 
-types of these messages are divided in two large categories: simple and complex 
-types. Simple types can be either primitive data types, such as floats, ints, 
-strings, etc., aggregates of the above, such as lists and unions, or restricted 
-versions of them, like enumerations or range-constrained ints. Complex types on 
-the other hand are derived (extended or restricted) based on other types, which 
-in turn are either simple or complex. Usually, complex types are created by 
-forming element aggregates - sequences or choices. 
+Every WSDL specification contains (or references) an XSD schema
+inside, describing the types of the messages needed to invoke the web
+service~\cite{xsd_structure_spec,xsd_datatypes_spec}. The types of
+these messages are divided in two large categories: simple and complex
+types. Simple types can be either primitive data types, such as
+floats, ints, strings, etc., aggregates of the above, such as lists
+and unions, or restricted versions of them, like enumerations or
+range-constrained ints. Complex types on the other hand are derived
+(extended or restricted) based on other types, which in turn are
+either simple or complex. Usually, complex types are created by
+forming element aggregates - sequences or choices.
 
 In addition to types, a WSDL specification also describes the operations the 
 web service provides, along with information linking the input and output 
