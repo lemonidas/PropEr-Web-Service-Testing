@@ -228,8 +228,88 @@ At the heart of our tool lies the automatic creation of PropEr generators from
 the types described in the WSDL specification. To that end, we introduce an 
 intermediate Erlang representation of the WSDL types; a representation that can 
 be directly mapped to PropEr generators, while at the same time is easier to work 
-with and can be used to handle all constraining facets of the XSD Schema. The 
-following XSD Schema is an example of a type specification of a web service 
+with and can be used to handle all constraining facets of the XSD Schema. 
+
+Using an XSD schema, one can describe increasingly complex types by combining
+smaller, simple datatypes into complex ones. Therefore, the first step towards 
+creating the intermediate represantation is mapping the primitive datatypes 
+into erlang tuples. The following table shows this mapping for some of the
+most used basic types:
+
+Include code differently?
+$<<$ instead of bsl?
+
+\begin{center}
+  \begin{tabular}{cc}
+    Simple Type & Erlang IR\\[5pt]
+    boolean & \texttt{\{erlsom\_bool, bool, []\}}\\
+    float & \texttt{\{erlsom\_string, float, \{inf,inf\}\}}\\
+    double & \texttt{\{erlsom\_string, float, \{inf,inf\}\}}\\
+    integer & \texttt{\{erlsom\_string, integer, \{inf, inf\}\}}\\
+    nonPositiveInteger & \texttt{\{erlsom\_string, integer, \{inf, 0\}\}}\\
+    negativeInteger & \texttt{\{erlsom\_string, integer, \{inf, -1\}\}}\\
+    long & \texttt{\{erlsom\_string, integer, \{-1 bsl 63, 1 bsl 63 -1\}\}}\\
+    int & \texttt{\{erlsom\_int, integer, \{-1 bsl 31, 1 bsl 31 - 1\}\}}\\
+    short & \texttt{\{erlsom\_string, integer, \{-1 bsl 15, 1 bsl 15 - 1\}\}}\\
+    byte & \texttt{\{erlsom\_string, integer, \{-1 bsl 7, 1 bsl 7 - 1\}\}}\\
+    nonNegativeInteger & \texttt{\{erlsom\_string, integer, \{0, inf\}\}}\\
+    positiveInteger & \texttt{\{erlsom\_string, integer, \{1, inf\}\}}\\
+    unsignedLong & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 64 - 1\}\}}\\
+    unsignedInt & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 32 - 1\}\}}\\
+    unsignedShort & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 16 - 1\}\}}\\
+    unsignedByte & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 8 - 1\}\}}\\
+    string & \texttt{\{list, \{\{range, 0, inf\}, \{erlsom\_int, integer, \{32,127\}\}\}\}}
+  \end{tabular}
+\end{center}
+
+The above format allows us to handle most facets - like the min/max facets - 
+simply by altering the related values according to the schema. In addition, the
+same list tuple is used to combine elements inside complex structures, when
+their \texttt{(minOccurs,maxOccurs)} attributes are different than \texttt{(1,1)}.
+
+Another important issue that needs addressing, is how to combine these simple
+datatypes into complex ones. In an XSD schema, there are 3 main combinators for
+this : any, sequence and choice. The following table shows how to create a
+complex type. We assume we have the name of the complex type in the 
+\texttt{Type\_name} variable, and the generators of the "elements" of the complex
+type in the \texttt{Generators} variable. 
+
+\begin{center}
+  \begin{tabular}{cc}
+    Indicator & Erlang IR\\[5pt]
+    all & \texttt{\{Type\_name, \{tuple, Generators\}\}}\\
+    sequence & \texttt{\{Type\_name, \{tuple, Generators\}\}}\\
+    choice & \texttt{\{Type\_name, \{union, Generators\}\}}
+  \end{tabular}
+\end{center}
+
+This intermediate representation can be easily mapped to erlang code. In the 
+following table we see how most of the IR tuples representing simple types are
+mapped to code:
+
+\begin{center}
+  \begin{tabular}{cc}
+    Erlang IR & Code\\[5pt]
+    \texttt{\{\_, integer, \{inf,inf\}\}} & \texttt{integer()}\\
+    \texttt{\{\_, integer, \{Min,Max\}\}} & \texttt{integer(Min,Max)}\\
+    \texttt{\{\_, float, \{inf,inf\}\}} & \texttt{float()}\\
+    \texttt{\{\_, float, \{Min,Max\}\}} & \texttt{float(Min,Max)}\\
+    \texttt{\{\_, bool, \_\}} & \texttt{union([true, false])}
+  \end{tabular}
+\end{center}
+
+The first argument is one of \texttt{erlsom\_int, erlsom\_string, erlsom\_bool}.
+This argument is used afterwards to wrap the resulting code inside a ?LET
+macro if needed like this:
+
+\begin{center}
+  \texttt{?LET(Gen, Code, \%type\%\_to\_list(Gen))}
+\end{center}
+which converts the generated instance to a string - if Yaws expects it as such.
+
+\subsection{Example}
+
+The following XSD Schema is an example of a type specification of a web service 
 which we will use to show how the generators are created.
 
 \begin{lstlisting}
@@ -446,7 +526,7 @@ generate_opName() ->
   ).
 \end{lstlisting}
 
-This is only possible with the use of the \LET macro that allows you to modify and combine the 
+This is only possible with the use of the \texttt{?LET} macro that allows you to modify and combine the 
 generated data. 
 
 \subsection{Automatic Creation of Properties from WSDL Operations}
