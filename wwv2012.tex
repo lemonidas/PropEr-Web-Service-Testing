@@ -236,29 +236,29 @@ creating the intermediate represantation is mapping the primitive datatypes
 into erlang tuples. The following table shows this mapping for some of the
 most used basic types:
 
-Include code differently?
-$<<$ instead of bsl?
-
 \begin{center}
   \begin{tabular}{cc}
-    Simple Type & Erlang IR\\[5pt]
-    boolean & \texttt{\{erlsom\_bool, bool, []\}}\\
-    float & \texttt{\{erlsom\_string, float, \{inf,inf\}\}}\\
-    double & \texttt{\{erlsom\_string, float, \{inf,inf\}\}}\\
-    integer & \texttt{\{erlsom\_string, integer, \{inf, inf\}\}}\\
-    nonPositiveInteger & \texttt{\{erlsom\_string, integer, \{inf, 0\}\}}\\
-    negativeInteger & \texttt{\{erlsom\_string, integer, \{inf, -1\}\}}\\
-    long & \texttt{\{erlsom\_string, integer, \{-1 bsl 63, 1 bsl 63 -1\}\}}\\
-    int & \texttt{\{erlsom\_int, integer, \{-1 bsl 31, 1 bsl 31 - 1\}\}}\\
-    short & \texttt{\{erlsom\_string, integer, \{-1 bsl 15, 1 bsl 15 - 1\}\}}\\
-    byte & \texttt{\{erlsom\_string, integer, \{-1 bsl 7, 1 bsl 7 - 1\}\}}\\
-    nonNegativeInteger & \texttt{\{erlsom\_string, integer, \{0, inf\}\}}\\
-    positiveInteger & \texttt{\{erlsom\_string, integer, \{1, inf\}\}}\\
-    unsignedLong & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 64 - 1\}\}}\\
-    unsignedInt & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 32 - 1\}\}}\\
-    unsignedShort & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 16 - 1\}\}}\\
-    unsignedByte & \texttt{\{erlsom\_string, integer, \{0, 1 bsl 8 - 1\}\}}\\
-    string & \texttt{\{list, \{\{range, 0, inf\}, \{erlsom\_int, integer, \{32,127\}\}\}\}}
+    \hline
+    Simple Type & Erlang IR\\
+    \hline
+    boolean & \texttt{$\{$erlsom\_bool, bool, []$\}$}\\
+    float & \texttt{$\{$erlsom\_string, float, $\{$inf,inf$\}\}$}\\
+    double & \texttt{$\{$erlsom\_string, float, $\{$inf,inf$\}\}$}\\
+    integer & \texttt{$\{$erlsom\_string, integer, $\{$inf, inf$\}\}$}\\
+    nonPositiveInteger & \texttt{$\{$erlsom\_string, integer, $\{$inf, 0$\}\}$}\\
+    negativeInteger & \texttt{$\{$erlsom\_string, integer, $\{$inf, -1$\}\}$}\\
+    long & \texttt{$\{$erlsom\_string, integer, $\{$-1 bsl 63, 1 bsl 63 -1$\}\}$}\\
+    int & \texttt{$\{$erlsom\_int, integer, $\{$-1 bsl 31, 1 bsl 31 - 1$\}\}$}\\
+    short & \texttt{$\{$erlsom\_string, integer, $\{$-1 bsl 15, 1 bsl 15 - 1$\}\}$}\\
+    byte & \texttt{$\{$erlsom\_string, integer, $\{$-1 bsl 7, 1 bsl 7 - 1$\}\}$}\\
+    nonNegativeInteger & \texttt{$\{$erlsom\_string, integer, $\{$0, inf$\}\}$}\\
+    positiveInteger & \texttt{$\{$erlsom\_string, integer, $\{$1, inf$\}\}$}\\
+    unsignedLong & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 64 - 1$\}\}$}\\
+    unsignedInt & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 32 - 1$\}\}$}\\
+    unsignedShort & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 16 - 1$\}\}$}\\
+    unsignedByte & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 8 - 1$\}\}$}\\
+    string & \texttt{$\{$list, $\{\{$range, 0, inf$\}$, $\{$erlsom\_int, integer, $\{$32,127$\}\}\}\}$}\\
+    \hline
   \end{tabular}
 \end{center}
 
@@ -276,30 +276,35 @@ type in the \texttt{Generators} variable.
 
 \begin{center}
   \begin{tabular}{cc}
-    Indicator & Erlang IR\\[5pt]
-    all & \texttt{\{Type\_name, \{tuple, Generators\}\}}\\
-    sequence & \texttt{\{Type\_name, \{tuple, Generators\}\}}\\
-    choice & \texttt{\{Type\_name, \{union, Generators\}\}}
+    \hline
+    Indicator & Erlang IR\\
+    \hline
+    all & \texttt{$\{$Type\_name, $\{$tuple, Generators$\}\}$}\\
+    sequence & \texttt{$\{$Type\_name, $\{$tuple, Generators$\}\}$}\\
+    choice & \texttt{$\{$Type\_name, $\{$union, Generators$\}\}$}\\
+    \hline
   \end{tabular}
 \end{center}
 
 This intermediate representation can be easily mapped to erlang code. In the 
 following table we see how most of the IR tuples representing simple types are
 mapped to code:
-
 \begin{center}
   \begin{tabular}{cc}
-    Erlang IR & Code\\[5pt]
-    \texttt{\{\_, integer, \{inf,inf\}\}} & \texttt{integer()}\\
-    \texttt{\{\_, integer, \{Min,Max\}\}} & \texttt{integer(Min,Max)}\\
-    \texttt{\{\_, float, \{inf,inf\}\}} & \texttt{float()}\\
-    \texttt{\{\_, float, \{Min,Max\}\}} & \texttt{float(Min,Max)}\\
-    \texttt{\{\_, bool, \_\}} & \texttt{union([true, false])}
+    \hline
+    Erlang IR & Code\\
+    \hline
+    \texttt{$\{$\_, integer, $\{$inf,inf$\}\}$} & \texttt{integer()}\\
+    \texttt{$\{$\_, integer, $\{$Min,Max$\}\}$} & \texttt{integer(Min,Max)}\\
+    \texttt{$\{$\_, float, $\{$inf,inf$\}\}$} & \texttt{float()}\\
+    \texttt{$\{$\_, float, $\{$Min,Max$\}\}$} & \texttt{float(Min,Max)}\\
+    \texttt{$\{$\_, bool, \_$\}$} & \texttt{union([true, false])}\\
+    \hline
   \end{tabular}
 \end{center}
 
 The first argument is one of \texttt{erlsom\_int, erlsom\_string, erlsom\_bool}.
-This argument is used afterwards to wrap the resulting code inside a ?LET
+This argument is used afterwards to wrap the resulting code inside a \LET
 macro if needed like this:
 
 \begin{center}
@@ -526,7 +531,7 @@ generate_opName() ->
   ).
 \end{lstlisting}
 
-This is only possible with the use of the \texttt{?LET} macro that allows you to modify and combine the 
+This is only possible with the use of the \LET macro that allows you to modify and combine the 
 generated data. 
 
 \subsection{Automatic Creation of Properties from WSDL Operations}
