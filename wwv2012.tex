@@ -236,11 +236,11 @@ creating the intermediate represantation is mapping the primitive datatypes
 into erlang tuples. The following table shows this mapping for some of the
 most used basic types:
 
-\begin{center}
+\begin{center}\footnotesize
   \begin{tabular}{cc}
-    \hline
+    \toprule
     Simple Type & Erlang IR\\
-    \hline
+    \midrule
     boolean & \texttt{$\{$erlsom\_bool, bool, []$\}$}\\
     float & \texttt{$\{$erlsom\_string, float, $\{$inf,inf$\}\}$}\\
     double & \texttt{$\{$erlsom\_string, float, $\{$inf,inf$\}\}$}\\
@@ -258,48 +258,48 @@ most used basic types:
     unsignedShort & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 16 - 1$\}\}$}\\
     unsignedByte & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 8 - 1$\}\}$}\\
     string & \texttt{$\{$list, $\{\{$range, 0, inf$\}$, $\{$erlsom\_int, integer, $\{$32,127$\}\}\}\}$}\\
-    \hline
+    \bottomrule
   \end{tabular}
 \end{center}
 
 The above format allows us to handle most facets - like the min/max facets - 
 simply by altering the related values according to the schema. In addition, the
 same list tuple is used to combine elements inside complex structures, when
-their \texttt{(minOccurs,maxOccurs)} attributes are different than \texttt{(1,1)}.
+their \texttt{(minOccurs,maxOccurs)} attributes are different than~\texttt{(1,1)}.
 
-Another important issue that needs addressing, is how to combine these simple
-datatypes into complex ones. In an XSD schema, there are 3 main combinators for
-this : any, sequence and choice. The following table shows how to create a
+Another important issue that needs addressing is how to combine these simple
+datatypes into complex ones. In an XSD schema, there are three main combinators for
+this: any, sequence and choice. The following table shows how to create a
 complex type. We assume we have the name of the complex type in the 
-\texttt{Type\_name} variable, and the generators of the "elements" of the complex
+\texttt{TypeName} variable, and the generators of the ``elements'' of the complex
 type in the \texttt{Generators} variable. 
 
-\begin{center}
+\begin{center}\footnotesize
   \begin{tabular}{cc}
-    \hline
+    \toprule
     Indicator & Erlang IR\\
-    \hline
-    all & \texttt{$\{$Type\_name, $\{$tuple, Generators$\}\}$}\\
-    sequence & \texttt{$\{$Type\_name, $\{$tuple, Generators$\}\}$}\\
-    choice & \texttt{$\{$Type\_name, $\{$union, Generators$\}\}$}\\
-    \hline
+    \midrule
+    all & \texttt{$\{$TypeName, $\{$tuple, Generators$\}\}$}\\
+    sequence & \texttt{$\{$TypeName, $\{$tuple, Generators$\}\}$}\\
+    choice & \texttt{$\{$TypeName, $\{$union, Generators$\}\}$}\\
+    \bottomrule
   \end{tabular}
 \end{center}
 
-This intermediate representation can be easily mapped to erlang code. In the 
+This intermediate representation can be easily mapped to Erlang code. In the 
 following table we see how most of the IR tuples representing simple types are
 mapped to code:
-\begin{center}
+\begin{center}\footnotesize
   \begin{tabular}{cc}
-    \hline
+    \toprule
     Erlang IR & Code\\
-    \hline
-    \texttt{$\{$\_, integer, $\{$inf,inf$\}\}$} & \texttt{integer()}\\
-    \texttt{$\{$\_, integer, $\{$Min,Max$\}\}$} & \texttt{integer(Min,Max)}\\
-    \texttt{$\{$\_, float, $\{$inf,inf$\}\}$} & \texttt{float()}\\
-    \texttt{$\{$\_, float, $\{$Min,Max$\}\}$} & \texttt{float(Min,Max)}\\
+    \midrule
+    \texttt{$\{$\_, integer, $\{$inf, inf$\}\}$} & \texttt{integer()}\\
+    \texttt{$\{$\_, integer, $\{$Min, Max$\}\}$} & \texttt{integer(Min, Max)}\\
+    \texttt{$\{$\_, float, $\{$inf, inf$\}\}$} & \texttt{float()}\\
+    \texttt{$\{$\_, float, $\{$Min, Max$\}\}$} & \texttt{float(Min, Max)}\\
     \texttt{$\{$\_, bool, \_$\}$} & \texttt{union([true, false])}\\
-    \hline
+    \bottomrule
   \end{tabular}
 \end{center}
 
