@@ -666,8 +666,9 @@ arguments and returned a correctly formed result each time.
 Now for an example of a service that crashes, we created our own web
 service using eclipse and tomcat. This example is a variation of an
 example about a faulty \texttt{lists:delete} function given
-in~\cite{PropErTypes@Erlang-11} and will be used also to see how our tool
-fares in doing property-based testing of web services.
+in the first PropEr publication ~\cite{PropErTypes@Erlang-11}, which we
+also used also to ensure similar behaviour when testing traditional programs
+and web services using PropEr.
 
 We have a simple Java implementation of the web service logic, to make it
 directly comparable with the original Erlang implementation:
@@ -831,8 +832,12 @@ complex testcases.
 
 \section{Concluding Remarks and Future Work}
 
-We demonstrated how our tool can be used to automatically test web services, with a
-different approach than the existing tools on the market. 
+We demonstrated how our tool can be used to automatically test web services, 
+with a different approach than the existing tools on the market. 
+% Using our tool, we were able to succesfully test a large number of web services 
+% available for free, mostly in webservicex.net. From the 30+ web services we 
+% attempted to test, all proved to respond with valid XML for all random inputs 
+% provided by PropEr.
 One course for future work is to perfect test case generation. Our tool, 
 while still under development, can successfully test all free web
 services it was tried against, handling most types and constraining
