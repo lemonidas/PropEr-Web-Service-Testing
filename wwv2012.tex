@@ -97,10 +97,24 @@ as other testing approaches: the generators would be most cumbersome
 to write manually. This is where our tool comes in: It automatically
 creates test case generators and simple properties to be tested based
 on the WSDL specification of the web service and feeds them to PropEr
-for execution. Optionally, it allows their easy modification by the
-user in order to test more involved properties that the web service
-must satisfy.
+for execution. 
+Skipping ahead, we show a small example of using our tool to perform
+fully-automated response testing on a free web service.
 
+\begin{lstlisting}
+> proper_ws:auto_test("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
+
+Testing Property: "prop_ChangeCookingUnit_responds"
+..... (100 dots) ...
+OK: Passed 100 test(s).
+true
+\end{lstlisting}
+
+In this example, 100 random tests were performed on the web service, 
+and the web service responded successfully on all of them. Our tool
+however, is designed for more. Optionally, it allows the user to easily
+modify the created generators and properties in order to test 
+more involved properties that the web service must satisfy.
 % What this paper does + generation techniques
 
 In this paper we describe the methods our tool employs to handle this
