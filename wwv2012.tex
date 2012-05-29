@@ -843,17 +843,28 @@ complex testcases.
 \section{Concluding Remarks and Future Work}
 
 We demonstrated how our tool can be used to automatically test web services, 
-with a different approach than the existing tools on the market. 
-% Using our tool, we were able to succesfully test a large number of web services 
-% available for free, mostly in webservicex.net. From the 30+ web services we 
-% attempted to test, all proved to respond with valid XML for all random inputs 
-% provided by PropEr.
+with a different approach than the existing tools on the market. Using our 
+tool, we were able to succesfully test a large number of web services 
+available for free, mostly in webservicex.net. From the 30+ web services we 
+attempted to test, all but one proved to respond with valid SOAP for all random 
+inputs provided by PropEr. The inability to test the remaining one, resulted 
+from the existance of a special (german) character in the WSDL specification.
+This character was not handled correctly by Yaws, which exited with an error. 
+
 One course for future work is to perfect test case generation. Our tool, 
 while still under development, can successfully test all free web
 services it was tried against, handling most types and constraining
 facets appearing in XSD schemas. However, some types that are not
 frequently encountered - like some date formats or the pattern
 constraining facet - are yet to be handled by our tool and need to be addressed.
+
+Another idea we are currently working on, is to expand on the functionality 
+that is tested automatically. The WSDL specification contains information not
+only about the input message types, but also the output ones. Using this
+information we could create properties that automatically verify not only that
+the web service returns a valid SOAP structure, but that the information inside
+is correctly typed.
+
 Our main goal now, however, is to handle property-based testing of web services 
 using our tool and figure out in which areas our tool could aid the user even 
 further. Successful PBT would be a huge asset for web service testers, speeding 
