@@ -1,4 +1,4 @@
-\documentclass[submission,copyright,a4]{eptcs}
+\documentclass[submission,copyright]{eptcs}
 \providecommand{\event}{WWV 2012}
 \usepackage{breakurl}
 
@@ -127,14 +127,6 @@ presents ideas for future work.
 
 \section{System Architecture} \label{sec:architecture}
 
-% Probably needs another eptcs way to add an image.(something with a
-% "figure" maybe?)
-\begin{figure}
-\includegraphics{Framework.png}
-\caption{System architecture of our property-based testing framework.}
-\label{fig:architecture}
-\end{figure}
-
 Figure~\ref{fig:architecture} shows the architecture of our testing
 framework. Given a URI, the testing starts by obtaining the WSDL
 specification of the web service. This specification is then fed into
@@ -149,6 +141,12 @@ testing file to add his own properties or refine the generators. The
 testing file is then given as input to PropEr, which generates random
 testcases, invokes the Web service (using Yaws as a SOAP wrapper) and
 then analyzes the result.
+
+\begin{figure}
+\includegraphics{Framework.png}
+\caption{System architecture of our property-based testing framework.}
+\label{fig:architecture}
+\end{figure}
 
 \subsection{WSDL}
 
@@ -360,28 +358,27 @@ all its successors.
 
 Simple types yield tuples that contain only type information, along with an atom 
 to facilitate compatibility with Erlsom and Yaws. In our example, we encounter 
-three different simple types. Two of them, namely xsd:string and xsd:positiveInteger 
-represent primitive datatypes of the WSDL specification, where as "tns:PaymentType" 
-is a user defined simple type - a restriction upon the string type. The tuples 
-associated with these types in our tool are:
+three different simple types. Two of them, namely \texttt{xsd:string} and
+\texttt{xsd:positiveInteger} represent primitive datatypes of the WSDL specification,
+whereas \texttt{tns:PaymentType} is a user defined simple type: a restriction
+upon the string type. The tuples associated with these types in our tool are:
 
 \begin{lstlisting}
 xsd:positiveInteger : {erlsom_string, integer, {1, inf}}
 \end{lstlisting}
 
-The positiveInteger primitive datatype is mapped by default to the above tuple. 
-The first argument \texttt{'erlsom\_string'} states that for compatibility with 
-Yaws it must be converted to String before wrapped in a valid SOAP structure, 
-the second argument states that the base PropEr generator is \texttt{integer()} and the 
-last denotes the range (minimum and maximum value of the generated value) is 
-between 1 and infinity. 
+The \texttt{positiveInteger} primitive datatype is mapped by default to the
+above tuple.  Its first element, the Erlang atom \texttt{erlsom\_string}, states
+that for compatibility with Yaws it must be converted to String before wrapped
+in a valid SOAP structure, its second element states that the base PropEr
+generator is \texttt{integer()}, and the last denotes the range $[1,+\infty)$. 
 
 \begin{lstlisting}
 xsd:string : {list, {{range, 0, inf}, {erlsom_int, integer, {32, 127}}}}
 \end{lstlisting}
 
 This simple type shows how strings are mapped to intermediate tuples. The first 
-argument shows that the entire tuple represents a list and the second argument 
+element shows that the entire tuple represents a list and the second argument 
 specifies the length of the list (in this case it is arbitrary) and the inner type 
 (its intermediate representation) of the list (in this case a character - since 
 strings in Erlang are lists of numbers, the generator creates such lists with 
@@ -483,7 +480,7 @@ generate_Order_1() ->
 \end{lstlisting}
 
 The above code reveals the generation method. Simple types are mapped almost directly 
-like the "PaymentType", with special care taken if needed to add a wrapper that converts 
+like the \texttt{"PaymentType"}, with special care taken if needed to add a wrapper that converts 
 the generated data to string if that is required by Yaws. Complex types on the other hand, 
 need to be represented as lists for Yaws to accept them, and we use \LET macros to that end. 
 
@@ -500,7 +497,7 @@ generate_Order_1() ->
 While in a small example - like the above - this would appear preferable, it actually makes things more 
 difficult for the user, should he want to modify the generated test data or the generators. 
 The importance of the \LET macro can be seen in the following example: Suppose a web service 
-has an operation that takes as input an element with an "ISBN" field amongst others (a 
+has an operation that takes as input an element with an ISBN field amongst others (a 
 semantically valid ISBN is a unique identifier for a book and consists of 10 single digits, 
 the last of which is determined by the previous nine via a congruence). For such a web service, 
 our tool would generate code of the following form:
@@ -531,8 +528,8 @@ generate_opName() ->
   ).
 \end{lstlisting}
 
-This is only possible with the use of the \LET macro that allows you to modify and combine the 
-generated data. 
+This is only possible with the use of the \LET macro that allows a user to
+modify and combine the generated data. 
 
 \subsection{Automatic Creation of Properties from WSDL Operations}
 
@@ -554,7 +551,6 @@ call_placeOrder(Arguments) ->
 call_placeOrder(WSDL, Arguments) ->
   yaws_soap_lib:call(WSDL, "placeOrder", Arguments).
 \end{lstlisting}
-
 Both functions invoke the \texttt{placeOrder} operation of the
 web service feeding \texttt{Arguments} to Yaws to wrap in a SOAP
 message. The difference between the two, is that the first function
