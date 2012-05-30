@@ -133,7 +133,7 @@ of this web service and, based on the types and operations that were
 specified there, created test case generators and a property, called
 \texttt{prop\_ChangeCookingUnit\_responds}. It then performed 100
 random tests on the web service using this property and the web
-service responded with a valid SOAP answer on all of them. Our tool
+service responded with valid SOAP messages on all of them. Our tool
 however, is designed for more. Optionally, it allows the user to
 easily modify the created generators and properties in order to test
 more involved properties that the web service must satisfy.
@@ -680,8 +680,8 @@ output file (by default this file is named
 Web Service:
 
 % Change names of functions (wsdl_handler:generate for instance)?
-\begin{lstlisting}
-Erlang R15B (erts-5.9) [source] [64-bit] [smp:4:4] [async-threads:0] [hipe] [kernel-poll:false]
+\begin{lstoutput}
+Erlang R15B (erts-5.9) [source] [64-bit] [smp:4:4] ... [hipe] [kernel-poll:false]
 
 Eshell V5.9  (abort with ^G)
 1> wsdl_handler:generate("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
@@ -692,7 +692,7 @@ ok
 ....(100 dots) .....
 OK: Passed 100 test(s).
 true
-\end{lstlisting}
+\end{lstoutput}
 
 As we can see, the Cooking web service was invoked 100 times with random 
 arguments and returned a correctly formed result each time.
@@ -777,7 +777,7 @@ answer_delete({ok, _, [Answer_record]}) -> Answer_record.
 \end{lstlisting}
 
 Calling PropEr to quickcheck this property reveals a flaw in our implementation.
-\begin{lstlisting}
+\begin{lstoutput}
 > proper:quickcheck(proper_output:prop_delete_responds()). 
 .!
 Failed: After 2 test(s).
@@ -786,7 +786,7 @@ Failed: After 2 test(s).
 Shrinking .(1 time(s))
 [[],[]]
 false
-\end{lstlisting}
+\end{lstoutput}
 
 In our implementation we assume that the string $c$ which is supposed
 to contain at its first character the character that should be removed
@@ -805,12 +805,12 @@ output of the generator to a char instead of a non-empty char list.
 
 Now only valid testcases are created. Testing the response property again we 
 get:
-\begin{lstlisting}
+\begin{lstoutput}
 > proper:quickcheck(proper_output:prop_delete_responds()).
 ....(100 dots) .....
 OK: Passed 100 test(s).
 true
-\end{lstlisting}
+\end{lstoutput}
 
 \section{Related Work} \label{sec:related}
 
