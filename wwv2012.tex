@@ -22,7 +22,7 @@
 \lhead{}\chead{}\rhead{}
 \lfoot{}\cfoot{\thepage}\rfoot{}
 
-\lstset{language=erlang,
+\lstset{%language=erlang,
         basicstyle=\footnotesize\ttfamily,
         columns=flexible,
         %tabsize=2,
@@ -36,12 +36,19 @@
         breaklines=true,
         breakatwhitespace=true}
 
+\lstnewenvironment{lstxsd}[1][]{%
+  \lstset{language=xml,frame=single,#1}%
+}{}
+\lstnewenvironment{lstline}[1][]{%
+  \lstset{language={},xleftmargin=\parindent,basicstyle=\ttfamily,#1}%
+}{}
 \lstnewenvironment{lsterlang}[1][]{%
-  \lstset{language={},#1}%
+  \lstset{language={},numbers=left,numberstyle=\tiny,numbersep=5pt,
+          xleftmargin=\parindent,xrightmargin=\parindent,#1}%
 }{}
 \lstnewenvironment{lstoutput}[1][]{%
-  \lstset{xleftmargin=\parindent,xrightmargin=\parindent,
-          frame=trBL,frameround=tttt,#1}%
+  \lstset{language=erlang,frame=trBL,frameround=tttt,
+          xleftmargin=\parindent,xrightmargin=\parindent,#1}%
 }{}
 
 \newcommand{\LET}{\texttt{?LET}\xspace}
@@ -130,13 +137,15 @@ true
 
 In this example, what our tool did is to read the WSDL specification
 of this web service and, based on the types and operations that were
-specified there, created test case generators and a property, called
-\texttt{prop\_ChangeCookingUnit\_responds}. It then performed 100
-random tests on the web service using this property and the web
-service responded with valid SOAP messages on all of them. Our tool
-however, is designed for more. Optionally, it allows the user to
-easily modify the created generators and properties in order to test
-more involved properties that the web service must satisfy.
+specified there, created a file with test case generators and a
+property, called \texttt{prop\_ChangeCookingUnit\_responds}. After
+compiling and loading this file, it performed 100 random tests on the
+web service checking its responsiveness and the web service responded
+with valid SOAP messages on all these tests. Our tool however, is
+designed for more. Optionally, it allows the user to easily modify the
+created generators and properties in order to test more involved
+properties that the web service must satisfy.
+
 % What this paper does + generation techniques
 
 In this paper we focus on the description of the methods that our tool
@@ -166,7 +175,7 @@ presents ideas for future work.
 
 \begin{figure}[!b]
 \centering
-\includegraphics[height=.26\textheight]{Framework.png}
+\includegraphics[height=.245\textheight]{Framework.png}
 \caption{System architecture of our property-based testing framework.}
 \label{fig:architecture}
 \end{figure}
@@ -175,16 +184,16 @@ Figure~\ref{fig:architecture} shows the architecture of our testing
 framework. Given a URI, the testing starts by obtaining the WSDL
 specification of the web service. This specification is then fed into
 two different Erlang tools, Yaws and xmerl, which will be briefly
-described later on in this section. Using xmerl we extract all the
-type information associated with the WSDL specification, while using
-Yaws we extract needed information for all supported (SOAP)
-operations. These two pieces of information are then used to create a
-testing file (Erlang code) that contains PropEr generators and
-properties ready for use. Then, the user can (optionally) modify the
-testing file to add his own properties or refine the generators. The
-testing file is then given as input to PropEr, which generates random
-testcases, invokes the Web service (using Yaws as a SOAP wrapper) and
-then analyzes the result.
+described later in this section. Using xmerl we extract all the type
+information associated with the WSDL specification, while using Yaws
+we extract needed information for all supported (SOAP) operations.
+These two pieces of information are then used to create a testing file
+(\texttt{proper\_ws\_autogen}) with Erlang code that contains PropEr
+generators and properties ready for use. Then, the user can
+(optionally) modify this auto-generated file to add his own properties
+or refine the generators. The testing file is then given as input to
+PropEr, which generates random testcases, invokes the Web service
+(using Yaws as a SOAP wrapper) and then analyzes the result.
 
 \subsection{WSDL}
 
@@ -198,31 +207,33 @@ inside, describing the types of the messages needed to invoke the web
 service~\cite{xsd_structure_spec,xsd_datatypes_spec}. The types of
 these messages are divided in two large categories: simple and complex
 types. Simple types can be either primitive data types, such as
-floats, ints, strings, etc., aggregates of the above, such as lists
-and unions, or restricted versions of them, like enumerations or
-range-constrained ints. Complex types on the other hand are derived
-(extended or restricted) based on other types, which in turn are
-either simple or complex. Usually, complex types are created by
+floats, integers, strings, etc., aggregates of the above, such as
+lists and unions, or restricted versions of them, like enumerations or
+range-constrained integers. Complex types on the other hand are
+derived (extended or restricted) based on other types, which in turn
+are either simple or complex. Usually, complex types are created by
 forming element aggregates - sequences or choices.
 
-In addition to types, a WSDL specification also describes the operations the 
-web service provides, along with information linking the input and output 
-messages of an operation with types defined in the XSD Schema. 
+In addition to types, a WSDL specification also describes the
+operations the web service provides, along with information linking
+the input and output messages of an operation with types defined in
+the XSD Schema.
 
 \subsection{PropEr}
 
 Property-based testing is a relatively new approach to software
 testing. The user specifies the general structure of valid inputs,
 together with properties expected to hold about the input-output
-relation. PropEr~\cite{proper_tool} is a PBT tool that can receive
-this information and create progressively more complex test cases,
-execute them and then monitor the response to make sure it conforms
-with the specified properties. In addition, should a failing test case
-occur, PropEr will try to locate the part of the test case that is
-actually responsible for the fault by simplifying (shrinking) the
-original test case. Since properties are written in the host language
-(Erlang), the user can utilize all of its expressivity to succesfully
-describe a vast range of input-output relations.
+relation. PropEr~\cite{proper_tool} is an Erlang-based PBT tool that
+can receive this information and create progressively more complex
+test cases, execute them and then monitor the response to make sure it
+conforms with the specified properties. In addition, should a failing
+test case occur, PropEr will try to locate the part of the test case
+that is actually responsible for the fault by \emph{shrinking} (i.e.
+simplifying) the offending test case. Since properties are written in
+the host language (Erlang), the user can utilize all of its
+expressivity to succesfully describe a vast range of input-output
+relations.
 
 To use PropEr for web service testing, we first need to specify the structure
 of the SOAP messages that will be used to invoke the web service operations. 
@@ -232,11 +243,10 @@ WSDL specification we create valid PropEr generators, while a sample property
 is created, that tests that no exceptions (SOAP Faults) happened and that the 
 XML response was well formed.
 
-
 \subsection{Yaws}
 
-Yaws is the most widely used Erlang HTTP webserver~\cite{yaws}. Yaws
-uses an XML parser called Erlsom to handle the encoding and decoding
+Yaws is one of the most widely used Erlang HTTP webserver~\cite{yaws}.
+Yaws uses an XML parser called Erlsom to handle the encoding and decoding
 of SOAP messages, a parser module faster and more user friendly than
 the xmerl module of the Erlang distribution, imposing however a few
 additional limitations. In our framework, Yaws is used at two
@@ -263,19 +273,20 @@ order to extract afterwards the typing information needed to create PropEr gener
 At the heart of our tool lies the automatic creation of PropEr generators from 
 the types described in the WSDL specification. To that end, we introduce an 
 intermediate Erlang representation of the WSDL types; a representation that can 
-be directly mapped to PropEr generators, while at the same time is easier to work 
-with and can be used to handle all constraining facets of the XSD Schema. 
+be directly mapped to PropEr generators, while at the same time is
+easier to work with and can be used to handle all constraining facets
+of the XSD Schema.
 
 Using an XSD schema, one can describe increasingly complex types by combining
 smaller, simple datatypes into complex ones. Therefore, the first step towards 
-creating the intermediate representation (IR) is mapping the primitive datatypes 
+creating the intermediate representation is mapping the primitive datatypes 
 into Erlang tuples. The following table shows this mapping for some of the
 most used basic types:
 
 \begin{center}\footnotesize
   \begin{tabular}{cc}
     \toprule
-    Simple Type & Erlang IR\\
+    Simple Type & Erlang Intermediate Representation \\
     \midrule
     boolean & \texttt{$\{$erlsom\_bool, bool, []$\}$}\\
     float & \texttt{$\{$erlsom\_string, float, $\{$inf,inf$\}\}$}\\
@@ -298,22 +309,23 @@ most used basic types:
   \end{tabular}
 \end{center}
 
-The above format allows us to handle most facets - like the min/max facets - 
+The above format allows us to handle most facets --- like the min/max facets ---
 simply by altering the related values according to the schema. In addition, the
 same list tuple is used to combine elements inside complex structures, when
 their \texttt{(minOccurs,maxOccurs)} attributes are different than~\texttt{(1,1)}.
 
-Another important issue that needs addressing is how to combine these simple
-datatypes into complex ones. In an XSD schema, there are three main combinators for
-this: any, sequence and choice. The following table shows how to create a
-complex type. We assume we have the name of the complex type in the 
-\texttt{TypeName} variable, and the generators of the ``elements'' of the complex
-type in the \texttt{Generators} variable. 
+Another important issue that needs addressing is how to combine these
+simple datatypes into complex ones. In an XSD schema, there are three
+main combinators for this: any, sequence and choice. The following
+table shows how to create a complex type. We assume we have the name
+of the complex type in the \texttt{TypeName} variable, and the
+generators of the ``elements'' of the complex type in the
+\texttt{Generators} variable.
 
 \begin{center}\footnotesize
   \begin{tabular}{cc}
     \toprule
-    Indicator & Erlang IR\\
+    Indicator & Erlang Intermediate Representation \\
     \midrule
     all & \texttt{$\{$TypeName, $\{$tuple, Generators$\}\}$}\\
     sequence & \texttt{$\{$TypeName, $\{$tuple, Generators$\}\}$}\\
@@ -322,13 +334,14 @@ type in the \texttt{Generators} variable.
   \end{tabular}
 \end{center}
 
-This intermediate representation can be easily mapped to Erlang code. In the 
-following table we see how most of the IR tuples representing simple types are
-mapped to code:
+This intermediate representation can be easily mapped to Erlang code.
+In the following table we see how most of the tuples of the
+intermediate representation representing simple types are mapped to
+code:
 \begin{center}\footnotesize
   \begin{tabular}{cc}
     \toprule
-    Erlang IR & Code\\
+    Erlang Intermediate Representation & Code\\
     \midrule
     \texttt{$\{$\_, integer, $\{$inf, inf$\}\}$} & \texttt{integer()}\\
     \texttt{$\{$\_, integer, $\{$Min, Max$\}\}$} & \texttt{integer(Min, Max)}\\
@@ -339,21 +352,22 @@ mapped to code:
   \end{tabular}
 \end{center}
 
-The first argument is one of \texttt{erlsom\_int, erlsom\_string, erlsom\_bool}.
-This argument is used afterwards to wrap the resulting code inside a \LET
-macro if needed like this:
+The first argument is one of \texttt{erlsom\_int},
+\texttt{erlsom\_string}, or \texttt{erlsom\_bool}. This argument is
+used afterwards to wrap the resulting code inside a \LET macro if
+needed like this:
 
 \begin{center}
   \texttt{?LET(Gen, Code, \%type\%\_to\_list(Gen))}
 \end{center}
-which converts the generated instance to a string - if Yaws expects it as such.
+which converts the generated instance to a string, if Yaws expects it as such.
 
 \subsection{Example}
 
 The following XSD Schema is an example of a type specification of a web service 
-which we will use to show how the generators are created.
+which we will use to show how generators are created.
 
-\begin{lstlisting}
+\begin{lstxsd}
   <complexType name="ProductType">
     <sequence>
       <element maxOccurs="1" minOccurs="1" name="name" type="xsd:string"/>
@@ -382,50 +396,50 @@ which we will use to show how the generators are created.
     </complexType>
   </element>
   <element name="Product" type="impl:ProductType"/>
-\end{lstlisting}
+\end{lstxsd}
 
 % Na mpei edw kapoia perigrafi tou parapanw sximatos i den xreiazetai?
 
-Suppose we want to create a generator for an operation \texttt{"placeOrder"} of a 
-web service that takes as an argument a single element \texttt{"Order"}. In the 
-front end of the implementation, we use the information provided by the xmerl 
-module after parsing the schema to go through all elements and their types recursively, 
-passing through all the nodes of the XSD schema in a DFS (depth-first search) style. In every such node, 
-we create a tuple that contains both name and type information for the node and 
-all its successors. 
+Suppose we want to create a generator for an operation
+\texttt{"placeOrder"} of a web service that takes as an argument a
+single element \texttt{"Order"}. In the front end of the
+implementation, we use the information provided by the xmerl module
+after parsing the schema to go through all elements and their types
+recursively, passing through all the nodes of the XSD schema in a
+depth-first search style. In every such node, we create a tuple that
+contains both name and type information for the node and all its
+successors.
 
-Simple types yield tuples that contain only type information, along with an atom 
-to facilitate compatibility with Erlsom and Yaws. In our example, we encounter 
-three different simple types. Two of them, namely \texttt{xsd:string} and
-\texttt{xsd:positiveInteger} represent primitive datatypes of the WSDL specification,
-whereas \texttt{tns:PaymentType} is a user defined simple type: a restriction
-upon the string type. The tuples associated with these types in our tool are:
-
-\begin{lstlisting}
+Simple types yield tuples that contain only type information, along
+with an atom to facilitate compatibility with Erlsom and Yaws. In our
+example, we encounter three different simple types. Two of them,
+namely \texttt{xsd:string} and \texttt{xsd:positiveInteger} represent
+primitive datatypes of the WSDL specification, whereas
+\texttt{tns:PaymentType} is a user defined simple type: a restriction
+upon the string type. The tuples associated with these types in our
+tool are:
+\begin{lstline}
 xsd:positiveInteger : {erlsom_string, integer, {1, inf}}
-\end{lstlisting}
-
+\end{lstline}
 The \texttt{positiveInteger} primitive datatype is mapped by default to the
 above tuple.  Its first element, the Erlang atom \texttt{erlsom\_string}, states
 that for compatibility with Yaws it must be converted to String before wrapped
 in a valid SOAP structure, its second element states that the base PropEr
 generator is \texttt{integer()}, and the last denotes the range $[1,+\infty)$. 
-
-\begin{lstlisting}
+\begin{lstline}
 xsd:string : {list, {{range, 0, inf}, {erlsom_int, integer, {32, 127}}}}
-\end{lstlisting}
+\end{lstline}
+This simple type shows how strings are mapped to intermediate tuples.
+The first element shows that the entire tuple represents a list and
+the second argument specifies the length of the list (in this case it
+is arbitrary) and the inner type (its intermediate representation) of
+the list (in this case a character; since strings in Erlang are lists
+of numbers, the generator creates such lists with integers in the
+range 32--127, printable characters in the ASCII table).
 
-This simple type shows how strings are mapped to intermediate tuples. The first 
-element shows that the entire tuple represents a list and the second argument 
-specifies the length of the list (in this case it is arbitrary) and the inner type 
-(its intermediate representation) of the list (in this case a character - since 
-strings in Erlang are lists of numbers, the generator creates such lists with 
-integers in the range 32--127, printable characters in the ASCII table).
-
-\begin{lstlisting}
+\begin{lstline}
 tns:PaymentType: {elements, ["visa", "paypal", "deposit"]}
-\end{lstlisting}
-
+\end{lstline}
 The final simple type is a user defined restriction upon the basic
 string datatype, defining an enumeration of the acceptable values. As
 a result the only acceptable values are \texttt{"visa"},
@@ -436,21 +450,21 @@ Elements yield tuples that contain type and naming information. The
 naming information contains the name of the element (if it exists) as
 well as namespace information of the XSD Schema. For example the
 \texttt{"price"} element:
-\begin{lstlisting}
+\begin{lstline}
 <element maxOccurs="1" minOccurs="1" name="price" type="xsd:positiveInteger"/>
-\end{lstlisting}
+\end{lstline}
 is represented with the tuple:
-\begin{lstlisting}
-{{price,['ProductType'],'http://bar'}, {erlsom_string,integer,{1,inf}}}
-\end{lstlisting}
+\begin{lstline}
+{{price, ['ProductType'], 'http://bar'}, {erlsom_string,i nteger, {1, inf}}}
+\end{lstline}
 
-Finally complex types usually define aggregates of simple types. In
+Finally, complex types usually define aggregates of simple types. In
 our example, we encounter three complex types, all of which combine
 child elements with a \texttt{sequence} combinator - other options
 would include \texttt{all} or \texttt{choice}. For example, the
 \texttt{"ShipInfo"} complex type is represented as:
 
-\begin{lstlisting}
+\begin{lstline}
 {{'ShipInfo',[],'http://bar'},
   {tuple,
     [{{paymentInfo,['ShipInfo'],'http://bar'},
@@ -458,28 +472,32 @@ would include \texttt{all} or \texttt{choice}. For example, the
        {elements,["visa","paypal","deposit"]}}},
      {{address,['ShipInfo'],'http://bar'},
       {list, {{range,0,inf}, {erlsom_int,integer,{32,127}}}}}]}}
-\end{lstlisting}
+\end{lstline}
 
-This shows that besides the name information, the intermediate representation consists of a 
-\texttt{tuple} atom - indicative of the \texttt{sequence} combinator - and a list of the 
-child intermediate tuples. In this case, since the minOccurs and maxOccurs attributes for 
-the child elements are both equal to 1, we include the child generator as is. In case these
-attributes implied a collection (e.g., unbounded), we would need to wrap the inner generators 
-inside another list generator.
+This shows that besides the name information, the intermediate
+representation consists of a \texttt{tuple} atom, which is indicative
+of the \texttt{sequence} combinator, and a list of the child
+intermediate tuples. In this case, since the \texttt{minOccurs} and
+\texttt{maxOccurs} attributes for the child elements are both equal to
+one, we include the child generator as is. In case these attributes
+implied a collection (e.g., \texttt{unbounded}), we would need to wrap
+the inner generators inside another list generator.
 
 % Back end now
 
-The mapping of the intermediate tuples to PropEr generators is pretty straightforward by design. 
-Special care is only needed to ensure names for all generators are unique. To that end we use 
-the full path up to the current node as prefix, leading to rather long but descriptive and unique 
-names. The generators produced for the previous example by our tool are:
+The mapping of the intermediate tuples to PropEr generators is pretty
+straightforward by design. Special care is only needed to ensure names
+for all generators are unique. To that end we use the full path up to
+the current node as prefix, leading to rather long but descriptive and
+unique names. The generators that are automatically produced for the
+previous example by our tool are:
 
-\begin{lstlisting}
+\begin{lsterlang}
 generate_Order_1_products_ProductType_name() -> 
   list(integer(32, 127)).
 
 generate_Order_1_products_ProductType_price() ->  
-  ?LET(Gen, integer(1,inf), integer_to_list(Gen)).
+  ?LET(Gen, integer(1, inf), integer_to_list(Gen)).
 
 generate_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType() -> 
   elements(["visa", "paypal", "deposit"]).
@@ -488,84 +506,73 @@ generate_Order_1_products_ProductType_shipInfo_ShipInfo_address() ->
   list(integer(32, 127)).
 
 generate_Order_1_products_ProductType_shipInfo_ShipInfo() -> 
-  ?LET(
-    {Pr_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType,
-     Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address},
-    {generate_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType(),
-     generate_Order_1_products_ProductType_shipInfo_ShipInfo_address()},
-    [Pr_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType,
-     Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address]
-  ).
+  ?LET({Pr_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType,
+        Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address},
+       {generate_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType(),
+        generate_Order_1_products_ProductType_shipInfo_ShipInfo_address()},
+       [Pr_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType,
+        Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address]).
 
 generate_Order_1_products_ProductType() -> 
-  ?LET(
-    {Pr_Order_1_products_ProductType_name, 
-     Pr_Order_1_products_ProductType_price, 
-     Pr_Order_1_products_ProductType_shipInfo_ShipInfo},
-    {generate_Order_1_products_ProductType_name(), 
-     generate_Order_1_products_ProductType_price(), 
-     generate_Order_1_products_ProductType_shipInfo_ShipInfo()},
-    [Pr_Order_1_products_ProductType_name, 
-     Pr_Order_1_products_ProductType_price, 
-     Pr_Order_1_products_ProductType_shipInfo_ShipInfo] 
-  ).
+  ?LET({Pr_Order_1_products_ProductType_name, 
+        Pr_Order_1_products_ProductType_price, 
+        Pr_Order_1_products_ProductType_shipInfo_ShipInfo},
+       {generate_Order_1_products_ProductType_name(), 
+        generate_Order_1_products_ProductType_price(), 
+        generate_Order_1_products_ProductType_shipInfo_ShipInfo()},
+       [Pr_Order_1_products_ProductType_name, 
+        Pr_Order_1_products_ProductType_price, 
+        Pr_Order_1_products_ProductType_shipInfo_ShipInfo]).
 
 generate_Order_1_products() -> 
   ?LET(Len, range(1, inf), vector(Len, generate_Order_1_products_ProductType())).
 
 generate_Order_1() -> 
   ?LET(Pr_Order_1_products, generate_Order_1_products(), [Pr_Order_1_products]).
-\end{lstlisting}
+\end{lsterlang}
 
-The above code reveals the generation method. Simple types are mapped almost directly 
-like the \texttt{"PaymentType"}, with special care taken if needed to add a wrapper that converts 
-the generated data to string if that is required by Yaws. Complex types on the other hand, 
-need to be represented as lists for Yaws to accept them, and we use \LET macros to that end. 
+The above code reveals the generation method. Simple types are mapped
+almost directly like the \texttt{"PaymentType"}, with special care
+taken if needed to add a wrapper that converts the generated data to
+string if that is required by Yaws. Complex types on the other hand,
+need to be represented as lists for Yaws to accept them, and we use
+\LET macros to that end.
 
 % Include the following or not?
-PropEr would allow for simplicity to create less verbose versions of these generators 
-with a little extra care for unique naming. For example the last generator could have 
-been written as:
+PropEr would allow for simplicity to create less verbose versions of
+these generators with a little extra care for unique naming. For
+example the last generator could have been written as:
 
-\begin{lstlisting}
+\begin{lsterlang}[firstnumber=35]
 generate_Order_1() ->
   [generate_Order_1_products()].
-\end{lstlisting}
+\end{lsterlang}
 
-While in a small example - like the above - this would appear preferable, it actually makes things more 
-difficult for the user, should he want to modify the generated test data or the generators. 
-The importance of the \LET macro can be seen in the following example: Suppose a web service 
-has an operation that takes as input an element with an ISBN field amongst others (a 
-semantically valid ISBN is a unique identifier for a book and consists of 10 single digits, 
-the last of which is determined by the previous nine via a congruence). For such a web service, 
-our tool would generate code of the following form:
-\begin{lstlisting}
+While in a small example, as the above, this would appear preferable,
+it actually makes things more difficult for the user, should he want
+to modify the generated test data or the generators. The importance of
+the \LET macro can be seen in the following example: Suppose a web
+service has an operation that takes as input an element with an ISBN
+field amongst others (a semantically valid ISBN is a unique identifier
+for a book and consists of 10 single digits, the last of which is
+determined by the previous nine via a congruence). For such a web
+service, our tool would generate code of the following form:
+\begin{lsterlang}[numbers=none]
 generate_opName() ->
-  ?LET(
-    {Pr_opName_ISBN,
-     ...},
-    {generate_opName_ISBN(),
-     ...},
-    [Pr_opName_ISBN,
-     ...]
-  ).
-\end{lstlisting}
+  ?LET({Pr_opName_ISBN, ...},
+       {generate_opName_ISBN(), ...},
+       [Pr_opName_ISBN, ...]).
+\end{lsterlang}
 where the \texttt{generate\_opName\_ISBN()} generator would create a
 10-member list of single digit integers. With a small function that
 changes the first digit so that the ISBN congruence is satisfied (e.g.,
-ISBNize()), one could rewrite the generator as:
-\begin{lstlisting}
+\texttt{ISBNize()}), one could rewrite the generator as:
+\begin{lsterlang}[numbers=none]
 generate_opName() ->
-  ?LET(
-    {Pr_opName_ISBN,
-     ...},
-    {generate_opName_ISBN(),
-     ...},
-    [ISBNize(Pr_opName_ISBN),
-     ...]
-  ).
-\end{lstlisting}
-
+  ?LET({Pr_opName_ISBN, ...},
+       {generate_opName_ISBN(), ...},
+       [ISBNize(Pr_opName_ISBN), ...]).
+\end{lsterlang}
 This is only possible with the use of the \LET macro that allows a user to
 modify and combine the generated data. 
 
@@ -580,7 +587,7 @@ errors in a web service implementation identifying SOAP:Fault
 structures, since SOAP Faults are analogous to Java exceptions.
 
 For the XSD Schema of the previous section, our tool creates the following code:
-\begin{lstlisting}
+\begin{lsterlang}[firstnumber=38]
 call_placeOrder(Arguments) ->
   inets:start(),
   WSDL = yaws_soap_lib:initModel(?WSDL_URL),
@@ -588,7 +595,7 @@ call_placeOrder(Arguments) ->
     
 call_placeOrder(WSDL, Arguments) ->
   yaws_soap_lib:call(WSDL, "placeOrder", Arguments).
-\end{lstlisting}
+\end{lsterlang}
 Both functions invoke the \texttt{placeOrder} operation of the
 web service feeding \texttt{Arguments} to Yaws to wrap in a SOAP
 message. The difference between the two, is that the first function
@@ -600,44 +607,47 @@ an argument and invokes the operation directly, thus being more
 efficient than the first.
 
 Finally, the property that is automatically created is the following:
-
-\begin{lstlisting}
+\begin{lsterlang}[firstnumber=46]
 prop_placeOrder_responds() ->
   ?FORALL(Args, generate_Order_1(),
-    begin
-      Result = call_placeOrder(Args),
-      case Result of 
-        {ok, _Attribs, [#'soap:Fault'{}]} -> false;
-        {ok, _Attribs, _Result_record} -> true;
-        _ -> false
-      end
-    end).
-\end{lstlisting}
+          case call_placeOrder(Args) of 
+            {ok, _Attribs, [#'soap:Fault'{}]} -> false;
+            {ok, _Attribs, _Result_record} -> true;
+            _ -> false
+          end).
+\end{lsterlang}
 
-The responds property is a \texttt{FORALL} macro, creating random data for the Web Service using 
-the PropEr generators previously created, uses the aforementioned calling functions to 
-invoke the operation and finally does a pattern matching on the resulting tuple. If Yaws 
-encountered some problem in parsing the SOAP messages an \{error, Reason\} tuple is returned
-and the property is not satisfied. Also, if a \texttt{soap:Fault} struct is encountered as the 
-body of the web service SOAP response, the web service failed to respond correctly and the 
-property is also not satisfied. In any other case, Yaws was able to parse a valid SOAP answer, 
-so we assume the web service responded correctly and move on to the next testcase. For deeper
-result validation the user needs to modify this property (or write another of his own) utilizing
-the full power of a host language like Erlang.
+The responds property is a \texttt{FORALL} macro, creating random data
+for the Web Service using the PropEr generators previously created,
+uses the aforementioned calling functions to invoke the operation and
+finally does a pattern matching on the resulting tuple. If Yaws
+encountered some problem in parsing the SOAP messages an \{error,
+Reason\} tuple is returned and the property is not satisfied. Also, if
+a \texttt{soap:Fault} struct is encountered as the body of the web
+service SOAP response, the web service failed to respond correctly and
+the property is also not satisfied. In any other case, Yaws was able
+to parse a valid SOAP answer, so we assume the web service responded
+correctly and move on to the next testcase. For deeper result
+validation the user needs to modify this property (or write another of
+his own) utilizing the full power of a host language like Erlang.
 
-For the resulting file to be directly compilable, we include all headers, defines and imports 
-needed by Erlang. In addition a function called \texttt{answer\_placeOrder} is created which 
-shows how to extract the answer (record) that is returned by Yaws. Finally, the extension also 
-uses erlsom to output a small .hrl (Erlang library) file that describes the records used for the 
-responses of the Service. This last library file helps the user in decoding the SOAP message 
+For the resulting file to be directly compilable, we include all
+headers, defines and imports needed by Erlang. In addition a function
+called \texttt{answer\_placeOrder} is created which shows how to
+extract the answer (record) that is returned by Yaws. Finally, the
+extension also uses erlsom to output a small \texttt{.hrl} (Erlang
+header) file that describes the records used for the responses of the
+Service. This header file helps the user in decoding the SOAP message
 responses without having to deal with XML parsing.
 
 \section{Response Testing of Web Services} \label{sec:response_testing}
 
-One kind of testing our tool can handle, that works without any user additions is response testing. Basically, 
-the output file created by the extension contains a property that invokes an operation of the 
-web service with random inputs and expects an answer for each different input. This can basically 
-check if a web service crashes for a specific input or similar unwanted behaviors. 
+One kind of testing our tool can handle, that works without any user
+additions is response testing. Basically, the output file created by
+the extension contains a property that invokes an operation of the web
+service with random inputs and expects an answer for each different
+input. This can basically check if a web service crashes for a
+specific input or similar unwanted behaviors.
 
 Let us see how to use the tool to test an existing Web Service that
 converts between cooking units. This free Web Service is hosted at
@@ -646,7 +656,7 @@ specification lies at
 \url{http://www.webservicex.net/ConvertCooking.asmx?WSDL"}.
 
 The XSD Schema of the Web Service is the following:
-\begin{lstlisting}
+\begin{lstxsd}
   <s:element name="ChangeCookingUnit">
     <s:complexType>
       <s:sequence>
@@ -672,7 +682,7 @@ The XSD Schema of the Web Service is the following:
     </s:complexType>
   </s:element>
   <s:element name="double" type="s:double" />
-\end{lstlisting}
+\end{lstxsd}
 where the \texttt{Cookings} simple type is a large enumeration with
 most of the values omitted in the Schema above. Our tool creates the
 output file (by default this file is named
