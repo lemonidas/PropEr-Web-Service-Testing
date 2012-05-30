@@ -748,7 +748,7 @@ web service, the output file was the one shown in
 Figure~\ref{fig:proper_ws_autogen}:
 
 \begin{figure}
-\begin{lsterlang}
+\begin{lsterlang}[xleftmargin=2em,numbers=left,numbersep=5pt]
 -module(proper_ws_autogen).
 
 -include_lib("proper/include/proper.hrl").
@@ -811,7 +811,7 @@ to contain at its first character the character that should be removed
 from the string, is not empty. We have two options of fixing it, either
 fix our implementation, or remove this testcase from the generator. To
 demonstrate how easy it is to change the generators created by the extension
-we choose the latter: we change the generator of $s$ to:
+we choose the latter. We change the generator of $s$ to:
 \begin{lsterlang}[firstnumber=15]
 generate_delete_1_c() ->
   ?LET(Len, range(1, 1), vector(Len, integer(32, 127))).
@@ -829,6 +829,7 @@ get:
 OK: Passed 100 test(s).
 true
 \end{lstoutput}
+
 
 \section{Related Work} \label{sec:related}
 
