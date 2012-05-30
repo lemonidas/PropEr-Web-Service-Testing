@@ -29,18 +29,33 @@
         %numberbychapter=false,
         captionpos=b,
         %commentstyle=,
-        %basewidth=0.51em,
-        frame=single,
+        %basewidth=1.25ex,
+        %frame=single,
         %framesep=2pt,
         %frameround=tttt,
         breaklines=true,
         breakatwhitespace=true}
 
+\lstnewenvironment{lsterlang}[1][]{%
+  \lstset{language={},#1}%
+}{}
+\lstnewenvironment{lstoutput}[1][]{%
+  \lstset{xleftmargin=\parindent,xrightmargin=\parindent,
+          frame=trBL,frameround=tttt,#1}%
+}{}
+
 \newcommand{\LET}{\texttt{?LET}\xspace}
 
 \title{Automatic WSDL-guided Test Case Generation\\
        for Property-Based Testing of Web Services}
-\author{Leonidas Lampropoulos \and Konstantinos Sagonas}
+\author{Leonidas Lampropoulos $^{1}$ \hspace*{1em} Konstantinos Sagonas $^{1,2}$
+\institute{%
+  $^{1}$ School of Electrical and Computer Engineering,
+  National Technical University of Athens, Greece\\
+  $^{2}$ Department of Information Technology, Uppsala University, Sweden
+}
+%\email{$\{\,$leolamp$,\,$kostis$\,\}\,$@softlab.ntua.gr}
+}
 \def\titlerunning{Automatic WSDL-guided Test Case Generation for Property-Based Testing of Web Services}
 \def\authorrunning{L. Lampropoulos and K. Sagonas}
 
@@ -87,43 +102,51 @@ services easier is property-based testing (PBT). The idea of PBT is to
 express the properties that a program must satisfy in the form of
 input-output relations, and present the general structure of valid
 input messages, while letting the system handle the creation of
-progressively more complex testcases to try to find a counter-example
-for the property. Property-based testing is gaining popularity,
-especially in the community of functional programming where tools such
-as QuickCheck (for Haskell and Erlang) or PropEr (for Erlang) exist.
+progressively more complex testcases in an attempt to find a
+counter-example for the property. Property-based testing is gaining
+popularity, especially in the community of functional programming
+languages where tools such as QuickCheck (for Haskell and Erlang) or
+PropEr (for Erlang) exist.
 %
 Property-based testing applied to web services shares the same problem
 as other testing approaches: the generators would be most cumbersome
 to write manually. This is where our tool comes in: It automatically
 creates test case generators and simple properties to be tested based
 on the WSDL specification of the web service and feeds them to PropEr
-for execution. 
+for execution.
+%
 Skipping ahead, we show a small example of using our tool to perform
-fully-automated response testing on a free web service.
+fully-automated response testing on a web service that, at the time of
+this writing (May 2012), can be accessed freely on the web:
 
-\begin{lstlisting}
-> proper_ws:auto_test("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
-
-Testing Property: "prop_ChangeCookingUnit_responds"
-..... (100 dots) ...
+\begin{lstoutput}
+Eshell V5.9 (abort with ^G)
+> proper_ws:response_check("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
+Testing property: prop_ChangeCookingUnit_responds
+..... (100 dots) .....
 OK: Passed 100 test(s).
 true
-\end{lstlisting}
+\end{lstoutput}
 
-In this example, 100 random tests were performed on the web service, 
-and the web service responded successfully on all of them. Our tool
-however, is designed for more. Optionally, it allows the user to easily
-modify the created generators and properties in order to test 
+In this example, what our tool did is to read the WSDL specification
+of this web service and, based on the types and operations that were
+specified there, created test case generators and a property, called
+\texttt{prop\_ChangeCookingUnit\_responds}. It then performed 100
+random tests on the web service using this property and the web
+service responded with a valid SOAP answer on all of them. Our tool
+however, is designed for more. Optionally, it allows the user to
+easily modify the created generators and properties in order to test
 more involved properties that the web service must satisfy.
 % What this paper does + generation techniques
 
-In this paper we describe the methods our tool employs to handle this
-automatic test case generation. This idea has already appeared in a
-number of papers, however the related tools have yet to mature, while
-our design can lead to much deeper and more thorough testing
-possibilities because of the integration with PropEr. In addition, we
-present some example uses of these generators in automatically testing
-web services for unexpected behaviors.
+In this paper we focus on the description of the methods that our tool
+employs to handle this automatic test case generation. Similar ideas
+have already appeared in a number of papers, however the corresponding
+tools have yet to mature, while our design can lead to much deeper and
+more thorough testing possibilities because of its integration with
+PropEr, a state-of-the-art property based testing tool. In addition,
+we present some example uses of these generators in automatically
+testing web services for unexpected behaviors.
 
 % Paper outline
 
@@ -141,6 +164,13 @@ presents ideas for future work.
 
 \section{System Architecture} \label{sec:architecture}
 
+\begin{figure}[!b]
+\centering
+\includegraphics[height=.26\textheight]{Framework.png}
+\caption{System architecture of our property-based testing framework.}
+\label{fig:architecture}
+\end{figure}
+
 Figure~\ref{fig:architecture} shows the architecture of our testing
 framework. Given a URI, the testing starts by obtaining the WSDL
 specification of the web service. This specification is then fed into
@@ -155,12 +185,6 @@ testing file to add his own properties or refine the generators. The
 testing file is then given as input to PropEr, which generates random
 testcases, invokes the Web service (using Yaws as a SOAP wrapper) and
 then analyzes the result.
-
-\begin{figure}
-\includegraphics{Framework.png}
-\caption{System architecture of our property-based testing framework.}
-\label{fig:architecture}
-\end{figure}
 
 \subsection{WSDL}
 
