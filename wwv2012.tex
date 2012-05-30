@@ -134,7 +134,7 @@ this writing (May 2012), can be accessed freely on the web:
 
 \begin{lstoutput}
 Eshell V5.9 (abort with ^G)
-> proper_ws:response_check("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
+1> proper_ws:response_check("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
 Testing property: prop_ChangeCookingUnit_responds
 ..... (100 dots) .....
 OK: Passed 100 test(s).
@@ -251,7 +251,7 @@ XML response was well formed.
 
 \subsection{Yaws}
 
-Yaws is one of the most widely used Erlang HTTP webserver~\cite{yaws}.
+Yaws is one of the most widely used Erlang HTTP webservers~\cite{yaws}.
 Yaws uses an XML parser called Erlsom to handle the encoding and decoding
 of SOAP messages, a parser module faster and more user friendly than
 the xmerl module of the Erlang distribution, imposing however a few
@@ -796,7 +796,7 @@ answer_delete({ok, _, [Answer_record]}) ->
 
 Calling PropEr to quickcheck this property reveals a flaw in our implementation.
 \begin{lstoutput}
-> proper:quickcheck(proper_ws_autogen:prop_delete_responds()). 
+4> proper:quickcheck(proper_ws_autogen:prop_delete_responds()). 
 .!
 Failed: After 2 test(s).
 [[46],[]]
@@ -824,7 +824,7 @@ output of the generator to a char instead of a non-empty char list.
 Now only valid testcases are created. Testing the response property again we 
 get:
 \begin{lstoutput}
-> proper:quickcheck(proper_ws_autogen:prop_delete_responds()).
+5> proper:quickcheck(proper_ws_autogen:prop_delete_responds()).
 ....(100 dots) .....
 OK: Passed 100 test(s).
 true
