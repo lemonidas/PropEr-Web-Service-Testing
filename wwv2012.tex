@@ -650,7 +650,7 @@ input. This can basically check if a web service crashes for a
 specific input or similar unwanted behaviors.
 
 Let us see how to use the tool to test an existing Web Service that
-converts between cooking units. This free Web Service is hosted at
+converts between cooking units. This free web service is hosted at
 \url{http://www.webservicex.net/ConvertCooking.asmx} and its WSDL
 specification lies at
 \url{http://www.webservicex.net/ConvertCooking.asmx?WSDL"}.
@@ -684,10 +684,12 @@ The XSD Schema of the Web Service is the following:
   <s:element name="double" type="s:double" />
 \end{lstxsd}
 where the \texttt{Cookings} simple type is a large enumeration with
-most of the values omitted in the Schema above. Our tool creates the
-output file (by default this file is named
-\texttt{proper\_output.erl}) which can be used directly to check the
-Web Service:
+most of the values omitted in the Schema above. While our tool could be used 
+to test the above web service fully automatically as shown in Section 1, the
+process can also be broken in intermediate steps to allow for user oversight
+and/or modifications. Firstly, we create the output file (by default this 
+file is named \texttt{proper\_ws\_autogen.erl}), which then can be used 
+directly for compilation and checking the web service:
 
 % Change names of functions (wsdl_handler:generate for instance)?
 \begin{lstoutput}
@@ -696,9 +698,9 @@ Erlang R15B (erts-5.9) [source] [64-bit] [smp:4:4] ... [hipe] [kernel-poll:false
 Eshell V5.9  (abort with ^G)
 1> wsdl_handler:generate("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
 ok
-2> c(proper_output).
-{ok,proper_output}
-3> proper:quickcheck(proper_output:prop_ChangeCookingUnit_responds()).
+2> c(proper_ws_autogen).
+{ok,proper_ws_autogen}
+3> proper:quickcheck(proper_ws_autogen:prop_ChangeCookingUnit_responds()).
 ....(100 dots) .....
 OK: Passed 100 test(s).
 true
@@ -742,10 +744,10 @@ After using the PropEr extension to handle the WSDL specification of this
 web service, the output file was the following:
 
 \begin{lstlisting}
--module(proper_output).
+-module(proper_ws_autogen).
 
 -include_lib("proper/include/proper.hrl").
--include("proper_output.hrl").
+-include("proper_ws_autogen.hrl").
 
 -define(PREFIX, "properns").
 -define(WSDL_URL, "http://localhost:8080/DeleteProject/services/Delete?WSDL").
@@ -788,7 +790,7 @@ answer_delete({ok, _, [Answer_record]}) -> Answer_record.
 
 Calling PropEr to quickcheck this property reveals a flaw in our implementation.
 \begin{lstoutput}
-> proper:quickcheck(proper_output:prop_delete_responds()). 
+> proper:quickcheck(proper_ws_autogen:prop_delete_responds()). 
 .!
 Failed: After 2 test(s).
 [[46],[]]
@@ -816,7 +818,7 @@ output of the generator to a char instead of a non-empty char list.
 Now only valid testcases are created. Testing the response property again we 
 get:
 \begin{lstoutput}
-> proper:quickcheck(proper_output:prop_delete_responds()).
+> proper:quickcheck(proper_ws_autogen:prop_delete_responds()).
 ....(100 dots) .....
 OK: Passed 100 test(s).
 true
