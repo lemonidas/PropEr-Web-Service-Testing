@@ -61,7 +61,7 @@
 
 \title{Automatic WSDL-guided Test Case Generation\\
        for Property-Based Testing of Web Services}
-\author{Leonidas Lampropoulos $^{1}$ \hspace*{2em} Konstantinos Sagonas $^{1,2}$
+\author{Leonidas Lampropoulos $^{1}$ \hspace*{2em} Konstantinos Sagonas $^{2,1}$
 \institute{%
   $^{1}$ School of Electrical and Computer Engineering,
   National Technical University of Athens, Greece\\
@@ -294,8 +294,8 @@ most used basic types:
     Simple Type & Erlang Intermediate Representation \\
     \midrule
     boolean & \texttt{$\{$erlsom\_bool, bool, []$\}$}\\
-    float & \texttt{$\{$erlsom\_string, float, $\{$inf,inf$\}\}$}\\
-    double & \texttt{$\{$erlsom\_string, float, $\{$inf,inf$\}\}$}\\
+    float & \texttt{$\{$erlsom\_string, float, $\{$inf, inf$\}\}$}\\
+    double & \texttt{$\{$erlsom\_string, float, $\{$inf, inf$\}\}$}\\
     integer & \texttt{$\{$erlsom\_string, integer, $\{$inf, inf$\}\}$}\\
     nonPositiveInteger & \texttt{$\{$erlsom\_string, integer, $\{$inf, 0$\}\}$}\\
     negativeInteger & \texttt{$\{$erlsom\_string, integer, $\{$inf, -1$\}\}$}\\
@@ -309,7 +309,7 @@ most used basic types:
     unsignedInt & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 32 - 1$\}\}$}\\
     unsignedShort & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 16 - 1$\}\}$}\\
     unsignedByte & \texttt{$\{$erlsom\_string, integer, $\{$0, 1 bsl 8 - 1$\}\}$}\\
-    string & \texttt{$\{$list, $\{\{$range, 0, inf$\}$, $\{$erlsom\_int, integer, $\{$32,127$\}\}\}\}$}\\
+    string & \texttt{$\{$list, $\{\{$range, 0, inf$\}$, $\{$erlsom\_int, integer, $\{$32, 127$\}\}\}\}$}\\
     \bottomrule
   \end{tabular}
 \end{center}
@@ -363,7 +363,7 @@ used afterwards to wrap the resulting code inside a \LET macro if
 needed like this:
 
 \begin{center}
-  \texttt{?LET(Gen, Code, \%type\%\_to\_list(Gen))}
+  \texttt{?LET(Gen, Code, \%TYPE\%\_to\_list(Gen))}
 \end{center}
 which converts the generated instance to a string, if Yaws expects it as such.
 
@@ -709,7 +709,7 @@ ok
 2> c(proper_ws_autogen).
 {ok,proper_ws_autogen}
 3> proper:quickcheck(proper_ws_autogen:prop_ChangeCookingUnit_responds()).
-....(100 dots) .....
+..... (100 dots) .....
 OK: Passed 100 test(s).
 true
 \end{lstoutput}
@@ -760,7 +760,6 @@ Figure~\ref{fig:proper_ws_autogen}:
 -include_lib("proper/include/proper.hrl").
 -include("proper_ws_autogen.hrl").
 
--define(PREFIX, "properns").
 -define(WSDL_URL, "http://localhost:8080/DeleteProject/services/Delete?WSDL").
 
 generate_delete_1_in() -> 
@@ -814,7 +813,7 @@ from the string, is not empty. We have two options of fixing it, either
 fix our implementation, or remove this testcase from the generator. To
 demonstrate how easy it is to change the generators created by the extension
 we choose the latter. We change the generator of $in$ to:
-\begin{lsterlang}[firstnumber=11]
+\begin{lsterlang}[firstnumber=10]
 generate_delete_1_in() ->
   ?LET(Len, range(1, 1), vector(Len, integer(32, 127))).
 \end{lsterlang}
@@ -829,7 +828,7 @@ get:
 \vfill\eject
 \begin{lstoutput}
 5> proper:quickcheck(proper_ws_autogen:prop_delete_responds()).
-....(100 dots) .....
+..... (100 dots) .....
 OK: Passed 100 test(s).
 true
 \end{lstoutput}
@@ -845,7 +844,7 @@ can handle automatic functional testing with structurally valid
 testcases created based on the WSDL specification of a web service.
 Prior research work using a similar idea includes the work of
 Bartolini~\textit{et al.}~\cite{bartolini@ICSOC-08} and of
-Zhang~\textit{et al.}~\cite{zhang@IC-08}. Most existing tools have
+Ma~\textit{et al.}~\cite{automated@IC-08}. Most existing tools have
 expanded on the idea of generating XML messages based on a static
 analysis of the WSDL specification. Most of them, however, lack in the
 aspect of validating the results of the web service and just present
@@ -871,13 +870,13 @@ of WSDL-based testing. WS-Taxi was first outlined in
 while it provides automatic data generation, the tool lacks a test oracle.
 %
 Finally, there is a couple of papers and a tool that use Haskell's
-QuickCheck to do automatic test case generation. The idea
-in~\cite{ws_quickcheck} is largely similar to our own: to create
-generators for a PBT tool to allow for automatic testing. The tool
-that spawned from this effort, monadWS~\cite{monadWS@AST-11}, contains
-a promising comparison with SoapUI and SoapTest, yet also does not
-utilize the power of QuickCheck for deeper validation of the results
-returned by the web service.
+QuickCheck to do automatic test case generation. The idea of
+Zhang~\textit{et al.}~\cite{ws_quickcheck} is largely similar to our
+own: use a property-based testing tool to create generators that allow
+for automatic testing. The tool that spawned from this effort,
+monadWS~\cite{monadWS@AST-11}, contains a promising comparison with
+SoapUI and SoapTest, yet also does not utilize the power of QuickCheck
+for deeper validation of the results returned by the web service.
 
 All in all, what makes our tool stand out from the rest is that it 
 was designed for use with a property based testing tools with the 
@@ -898,12 +897,13 @@ inputs provided by PropEr. The inability to test the remaining one, resulted
 from the existance of a special (german) character in the WSDL specification.
 This character was not handled correctly by Yaws, which exited with an error. 
 
-One course for future work is to perfect test case generation. Our tool, 
-while still under development, can successfully test all free web
-services it was tried against, handling most types and constraining
-facets appearing in XSD schemas. However, some types that are not
-frequently encountered - like some date formats or the pattern
-constraining facet - are yet to be handled by our tool and need to be addressed.
+One course for future work is to perfect test case generation. Our
+tool, while still under development, can successfully test all free
+web services it was tried against, handling most types and
+constraining facets appearing in XSD schemas. However, some types that
+are not frequently encountered --- like some date formats or the
+pattern constraining facet --- are yet to be handled by our tool and
+need to be addressed.
 
 Another idea we are currently working on, is to expand on the functionality 
 that is tested automatically. The WSDL specification contains information not
@@ -912,11 +912,11 @@ information we could create properties that automatically verify not only that
 the web service returns a valid SOAP structure, but that the information inside
 is correctly typed.
 
-Our main goal now, however, is to handle property-based testing of web services 
-using our tool and figure out in which areas our tool could aid the user even 
-further. Successful PBT would be a huge asset for web service testers, speeding 
-up the time needed to create test cases and doing the actual testing 
-significantly.
+Our main goal now, however, is to handle property-based testing of web
+services using our tool and figure out in which areas our tool could
+aid the user even further. Successful property-based testing would be
+a huge asset for web service testers, speeding up the time needed to
+create test cases and doing the actual testing significantly.
 
 \bibliographystyle{eptcs}
 \bibliography{ws}
