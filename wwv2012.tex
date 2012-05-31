@@ -61,7 +61,7 @@
 
 \title{Automatic WSDL-guided Test Case Generation\\
        for Property-Based Testing of Web Services}
-\author{Leonidas Lampropoulos $^{1}$ \hspace*{1em} Konstantinos Sagonas $^{1,2}$
+\author{Leonidas Lampropoulos $^{1}$ \hspace*{2em} Konstantinos Sagonas $^{1,2}$
 \institute{%
   $^{1}$ School of Electrical and Computer Engineering,
   National Technical University of Athens, Greece\\
@@ -146,7 +146,7 @@ of this web service and, based on the types and operations that were
 specified there, created a file with test case generators and a
 property, called \texttt{prop\_ChangeCookingUnit\_responds}. After
 compiling and loading this file, it performed 100 random tests on the
-web service checking its responsiveness and the web service responded
+web service to check its responsiveness and the web service responded
 with valid SOAP messages on all these tests. Our tool however, is
 designed for more. Optionally, it allows the user to easily modify the
 created generators and properties in order to test more involved
@@ -220,10 +220,9 @@ derived (extended or restricted) based on other types, which in turn
 are either simple or complex. Usually, complex types are created by
 forming element aggregates - sequences or choices.
 
-In addition to types, a WSDL specification also describes the
-operations the web service provides, along with information linking
-the input and output messages of an operation with types defined in
-the XSD Schema.
+In addition to types, WSDL also describes the operations the web
+service provides, along with information linking the input and output
+messages of an operation with types defined in the XSD schema.
 
 \subsection{PropEr}
 
@@ -496,9 +495,10 @@ straightforward by design. Special care is only needed to ensure names
 for all generators are unique. To that end we use the full path up to
 the current node as prefix, leading to rather long but descriptive and
 unique names. The generators that are automatically produced for the
-previous example by our tool are:
+previous example by our tool are shown in Figure~\ref{fig:generators}.
 
-\begin{lsterlang}
+\begin{figure}
+\begin{lsterlang}[xleftmargin=2em,numbers=left,numbersep=5pt]
 generate_Order_1_products_ProductType_name() -> 
   list(integer(32, 127)).
 
@@ -513,22 +513,22 @@ generate_Order_1_products_ProductType_shipInfo_ShipInfo_address() ->
 
 generate_Order_1_products_ProductType_shipInfo_ShipInfo() -> 
   ?LET({Pr_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType,
-        Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address},
-       {generate_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType(),
-        generate_Order_1_products_ProductType_shipInfo_ShipInfo_address()},
-       [Pr_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType,
-        Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address]).
+         Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address},
+        {generate_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType(),
+         generate_Order_1_products_ProductType_shipInfo_ShipInfo_address()},
+        [Pr_Order_1_products_ProductType_shipInfo_ShipInfo_paymentInfo_PaymentType,
+         Pr_Order_1_products_ProductType_shipInfo_ShipInfo_address]).
 
 generate_Order_1_products_ProductType() -> 
   ?LET({Pr_Order_1_products_ProductType_name, 
-        Pr_Order_1_products_ProductType_price, 
-        Pr_Order_1_products_ProductType_shipInfo_ShipInfo},
-       {generate_Order_1_products_ProductType_name(), 
-        generate_Order_1_products_ProductType_price(), 
-        generate_Order_1_products_ProductType_shipInfo_ShipInfo()},
-       [Pr_Order_1_products_ProductType_name, 
-        Pr_Order_1_products_ProductType_price, 
-        Pr_Order_1_products_ProductType_shipInfo_ShipInfo]).
+         Pr_Order_1_products_ProductType_price, 
+         Pr_Order_1_products_ProductType_shipInfo_ShipInfo},
+        {generate_Order_1_products_ProductType_name(), 
+         generate_Order_1_products_ProductType_price(), 
+         generate_Order_1_products_ProductType_shipInfo_ShipInfo()},
+        [Pr_Order_1_products_ProductType_name, 
+         Pr_Order_1_products_ProductType_price, 
+         Pr_Order_1_products_ProductType_shipInfo_ShipInfo]).
 
 generate_Order_1_products() -> 
   ?LET(Len, range(1, inf), vector(Len, generate_Order_1_products_ProductType())).
@@ -536,9 +536,13 @@ generate_Order_1_products() ->
 generate_Order_1() -> 
   ?LET(Pr_Order_1_products, generate_Order_1_products(), [Pr_Order_1_products]).
 \end{lsterlang}
+\caption{Generators which are automatically generated for the XSD
+  schema of our example}
+\label{fig:generators}
+\end{figure}
 
-The above code reveals the generation method. Simple types are mapped
-almost directly like the \texttt{"PaymentType"}, with special care
+Its code reveals the generation method. Simple types, like the
+\texttt{"PaymentType"}, are mapped almost directly with special care
 taken if needed to add a wrapper that converts the generated data to
 string if that is required by Yaws. Complex types on the other hand,
 need to be represented as lists for Yaws to accept them, and we use
@@ -554,8 +558,8 @@ generate_Order_1() ->
   [generate_Order_1_products()].
 \end{lsterlang}
 
-While in a small example, as the above, this would appear preferable,
-it actually makes things more difficult for the user, should he want
+While in a small example as the above, this would appear preferable,
+it actually makes things more difficult for the user, should she want
 to modify the generated test data or the generators. The importance of
 the \LET macro can be seen in the following example: Suppose a web
 service has an operation that takes as input an element with an ISBN
@@ -566,8 +570,8 @@ service, our tool would generate code of the following form:
 \begin{lsterlang}[numbers=none]
 generate_opName() ->
   ?LET({Pr_opName_ISBN, ...},
-       {generate_opName_ISBN(), ...},
-       [Pr_opName_ISBN, ...]).
+        {generate_opName_ISBN(), ...},
+        [Pr_opName_ISBN, ...]).
 \end{lsterlang}
 where the \texttt{generate\_opName\_ISBN()} generator would create a
 10-member list of single digit integers. With a small function that
@@ -576,8 +580,8 @@ changes the first digit so that the ISBN congruence is satisfied (e.g.,
 \begin{lsterlang}[numbers=none]
 generate_opName() ->
   ?LET({Pr_opName_ISBN, ...},
-       {generate_opName_ISBN(), ...},
-       [ISBNize(Pr_opName_ISBN), ...]).
+        {generate_opName_ISBN(), ...},
+        [ISBNize(Pr_opName_ISBN), ...]).
 \end{lsterlang}
 This is only possible with the use of the \LET macro that allows a user to
 modify and combine the generated data. 
@@ -596,8 +600,7 @@ For the XSD Schema of the previous section, our tool creates the following code:
 \begin{lsterlang}[firstnumber=38]
 call_placeOrder(Arguments) ->
   inets:start(),
-  WSDL = yaws_soap_lib:initModel(?WSDL_URL),
-  yaws_soap_lib:call(WSDL, "placeOrder", Arguments).
+  call_placeOrder(yaws_soap_lib:initModel(?WSDL_URL), Arguments).
     
 call_placeOrder(WSDL, Arguments) ->
   yaws_soap_lib:call(WSDL, "placeOrder", Arguments).
@@ -616,11 +619,11 @@ Finally, the property that is automatically created is the following:
 \begin{lsterlang}[firstnumber=46]
 prop_placeOrder_responds() ->
   ?FORALL(Args, generate_Order_1(),
-          case call_placeOrder(Args) of 
-            {ok, _Attribs, [#'soap:Fault'{}]} -> false;
-            {ok, _Attribs, _Result_record} -> true;
-            _ -> false
-          end).
+           case call_placeOrder(Args) of 
+             {ok, _Attribs, [#'soap:Fault'{}]} -> false;
+             {ok, _Attribs, _Result_record} -> true;
+             _ -> false
+           end).
 \end{lsterlang}
 
 The responds property is a \texttt{FORALL} macro, creating random data
@@ -658,8 +661,8 @@ similar unwanted behaviors.
 %
 Let us see how to use response testing to test an existing web service
 that converts between cooking units. This free web service is hosted
-at \url{http://www.webservicex.net/ConvertCooking.asmx}. Its WSDL
-specification lies at
+at \url{http://www.webservicex.net/ConvertCooking.asmx}. We get its
+WSDL specification using the URI
 \url{http://www.webservicex.net/ConvertCooking.asmx?WSDL"}.
 Its XSD Schema is the following:
 \begin{lstxsd}
@@ -690,7 +693,7 @@ Its XSD Schema is the following:
   <s:element name="double" type="s:double" />
 \end{lstxsd}
 where the \texttt{Cookings} simple type is a large enumeration with
-most of the values omitted in the Schema above. While our tool could
+most of its values omitted in the Schema above. While our tool could
 be used to test the above web service fully automatically as shown in
 Section~\ref{sec:intro}, the process can also be broken in
 intermediate steps to allow for user oversight and/or modifications.
@@ -711,8 +714,9 @@ OK: Passed 100 test(s).
 true
 \end{lstoutput}
 
-As we can see, the Cooking web service was invoked 100 times with random 
-arguments and returned a correctly formed result each time.
+As we can see, the change cooking unit web service was invoked 100
+times with random arguments and returned a correctly formed result
+each time.
 
 Now for an example of a service that crashes, we created our own web
 service using eclipse and tomcat. This example is a variation of a
@@ -751,46 +755,44 @@ Figure~\ref{fig:proper_ws_autogen}:
 \begin{lsterlang}[xleftmargin=2em,numbers=left,numbersep=5pt]
 -module(proper_ws_autogen).
 
+-export([call_delete/1, call_delete/2, answer_delete/1]).
+
 -include_lib("proper/include/proper.hrl").
 -include("proper_ws_autogen.hrl").
 
 -define(PREFIX, "properns").
 -define(WSDL_URL, "http://localhost:8080/DeleteProject/services/Delete?WSDL").
 
--export([call_delete/1, call_delete/2]).
--export([answer_delete/1]).
-
 generate_delete_1_in() -> 
   list(integer(32, 127)).
 
 generate_delete_1_c() -> 
-  list(integer(32, 127)).
+  integer(32, 127).
 
 generate_delete_1() -> 
   ?LET({Pr_delete_1_in, Pr_delete_1_c},
-       {generate_delete_1_in(), generate_delete_1_c()},
-       [Pr_delete_1_in, Pr_delete_1_c]).
+        {generate_delete_1_in(), generate_delete_1_c()},
+        [Pr_delete_1_in, Pr_delete_1_c]).
 
 call_delete(Arguments) ->
   inets:start(),
-  Wsdl = yaws_soap_lib:initModel(?WSDL_URL),
-  yaws_soap_lib:call(Wsdl, "delete", Arguments).
+  call_delete(yaws_soap_lib:initModel(?WSDL_URL), Arguments).
     
 call_delete(WSDL, Arguments) ->
   yaws_soap_lib:call(WSDL, "delete", Arguments).
 
 prop_delete_responds() ->
   ?FORALL(Args, generate_delete_1(),
-          case call_delete(Args) of 
-            {ok, _Attribs, [#soap:Fault()]} -> false; 
-            {ok, _Attribs, _Result_record} -> true;
-            _ -> false
-          end).
+           case call_delete(Args) of 
+             {ok, _Attribs, [#soap:Fault()]} -> false; 
+             {ok, _Attribs, _Result_record} -> true;
+             _ -> false
+           end).
 
 answer_delete({ok, _, [Answer_record]}) ->
   Answer_record.
 \end{lsterlang}
-\caption{Auto-generated file for the \texttt{lists:delete/2} web service.}
+\caption{Auto-generated test file for the \texttt{lists:delete/2} web service.}
 \label{fig:proper_ws_autogen}
 \end{figure}
 
@@ -806,23 +808,25 @@ Shrinking .(1 time(s))
 false
 \end{lstoutput}
 
-In our implementation we assume that the string $s$ which is supposed
+In our implementation we assume that the string $in$ which is supposed
 to contain at its first character the character that should be removed
 from the string, is not empty. We have two options of fixing it, either
 fix our implementation, or remove this testcase from the generator. To
 demonstrate how easy it is to change the generators created by the extension
-we choose the latter. We change the generator of $s$ to:
-\begin{lsterlang}[firstnumber=15]
-generate_delete_1_c() ->
+we choose the latter. We change the generator of $in$ to:
+\begin{lsterlang}[firstnumber=11]
+generate_delete_1_in() ->
   ?LET(Len, range(1, 1), vector(Len, integer(32, 127))).
 \end{lsterlang}
 
-We could change it to \texttt{range(1,inf)} or actually remove the
-\LET macro, but we would need to be careful not to actually change the
-output of the generator to a char instead of a non-empty char list.
+We could change its second argument to \texttt{range(1,inf)} or
+actually remove the \LET macro, but we would need to be careful not to
+actually change the output of the generator to a char instead of a
+non-empty char list.
 
 Now only valid testcases are created. Testing the response property again we 
 get:
+\vfill\eject
 \begin{lstoutput}
 5> proper:quickcheck(proper_ws_autogen:prop_delete_responds()).
 ....(100 dots) .....
