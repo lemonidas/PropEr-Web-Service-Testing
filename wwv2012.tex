@@ -98,14 +98,14 @@ that test for more involved functionality of the web services.
 
 % Web services + their testing
 
-Web Services are an essential part of modern web systems, especially
+Web services are an essential part of modern web systems, especially
 since the appearance of the Service-Oriented Architecture (SOA).
-Testing Web Services, however, is an extremely slow and painful
+Testing web services, however, is an extremely slow and painful
 process, mainly due to the overly verbose nature of XML SOAP messages
 which makes writing testcases by hand not a practical option. Many of
 the existing tools for testing web services help speed up this
 process, up to a point, but when the web service functionality becomes
-involved, they fail to assist the tester in testing the Web Services
+involved, they fail to assist the tester in testing the web services
 in an easy and straightforward manner.
 
 % Property based testing + PropEr
@@ -198,7 +198,7 @@ These two pieces of information are then used to create a testing file
 generators and properties ready for use. Then, the user can
 (optionally) modify this auto-generated file to add his own properties
 or refine the generators. The testing file is then given as input to
-PropEr, which generates random testcases, invokes the Web service
+PropEr, which generates random testcases, invokes the web service
 (using Yaws as a SOAP wrapper) and then analyzes the result.
 
 \subsection{WSDL}
@@ -608,7 +608,7 @@ message. The difference between the two, is that the first function
 attempts to start the inets module (an Erlang module that includes an
 HTTP client) and also parses the WSDL specification of the web service
 in order to create the model Yaws needs in order to make the actual
-call. The second function takes the WSDL model of the Web Service as
+call. The second function takes the WSDL model of the web service as
 an argument and invokes the operation directly, thus being more
 efficient than the first.
 
@@ -624,7 +624,7 @@ prop_placeOrder_responds() ->
 \end{lsterlang}
 
 The responds property is a \texttt{FORALL} macro, creating random data
-for the Web Service using the PropEr generators previously created,
+for the web service using the PropEr generators previously created,
 uses the aforementioned calling functions to invoke the operation and
 finally pattern matches on the resulting tuple. If Yaws encounters
 some problem in parsing the SOAP messages an \texttt{\{error,
@@ -833,7 +833,7 @@ true
 
 \section{Related Work} \label{sec:related}
 
-Research in testing Web Services has seen a lot of growth in the past
+Research in testing web services has seen a lot of growth in the past
 few years. A variety of tools has emerged handling disparate aspects
 of testing, from functional to integration and regression testing; cf.
 a survey on the subject~\cite{SOATesting@springerlink-09}. Our tool
