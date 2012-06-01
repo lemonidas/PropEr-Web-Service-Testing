@@ -60,7 +60,7 @@
 \newcommand{\LET}{\texttt{?LET}\xspace}
 
 \title{Automatic WSDL-guided Test Case Generation\\
-       for Property-Based Testing of Web Services}
+       for PropEr Testing of Web Services}
 \author{Leonidas Lampropoulos $^{1}$ \hspace*{2em} Konstantinos Sagonas $^{2,1}$
 \institute{%
   $^{1}$ School of Electrical and Computer Engineering,
@@ -69,7 +69,7 @@
 }
 %\email{$\{\,$leolamp$,\,$kostis$\,\}\,$@softlab.ntua.gr}
 }
-\def\titlerunning{Automatic WSDL-guided Test Case Generation for Property-Based Testing of Web Services}
+\def\titlerunning{Automatic WSDL-guided Test Case Generation for PropEr Testing of Web Services}
 \def\authorrunning{L. Lampropoulos and K. Sagonas}
 
 \begin{document}
@@ -79,18 +79,18 @@
 With web services already being key ingredients of modern web systems,
 automatic and easy-to-use but at the same time powerful and expressive
 testing frameworks for web services are increasingly important. Our
-work aims at fully automatic property-based testing of web services:
-ideally the user only specifies properties that the web service is
-expected to satisfy, in the form of input-output relations, and the
-system handles all the rest. In this paper we present in detail the
-component which lies at the heart of this system: how the WSDL
-specification of a web service is used to automatically create test
-case generators that can be fed to PropEr, a QuickCheck-like
-property-based testing tool, to create structurally valid random
-test cases for its operations. Although the process is fully automatic,
-our tool optionally allows the user to easily modify its output to
-either add semantic information to the generators or write properties
-that test for more involved functionality of the web services.
+work aims at fully automatic testing of web services: ideally the user
+only specifies properties that the web service is expected to satisfy,
+in the form of input-output relations, and the system handles all the
+rest. In this paper we present in detail the component which lies at
+the heart of this system: how the WSDL specification of a web service
+is used to automatically create test case generators that can be fed
+to PropEr, a property-based testing tool, to create structurally valid
+random test cases for its operations and check its responses. Although
+the process is fully automatic, our tool optionally allows the user to
+easily modify its output to either add semantic information to the
+generators or write properties that test for more involved
+functionality of the web services.
 \end{abstract}
 
 
@@ -102,7 +102,7 @@ Web services are an essential part of modern web systems, especially
 since the appearance of the Service-Oriented Architecture (SOA).
 Testing web services, however, is an extremely slow and painful
 process, mainly due to the overly verbose nature of XML SOAP messages
-which makes writing testcases by hand not a practical option. Many of
+which makes writing test cases by hand not a practical option. Many of
 the existing tools for testing web services help speed up this
 process, up to a point, but when the web service functionality becomes
 involved, they fail to assist the tester in testing the web services
@@ -115,7 +115,7 @@ services easier is property-based testing (PBT). The idea of PBT is to
 express the properties that a program must satisfy in the form of
 input-output relations, and present the general structure of valid
 input messages, while letting the system handle the creation of
-progressively more complex testcases in an attempt to find a
+progressively more complex test cases in an attempt to find a
 counter-example for the property. Property-based testing is gaining
 popularity, especially in the community of functional programming
 languages where tools such as QuickCheck (for Haskell and Erlang) or
@@ -198,7 +198,7 @@ These two pieces of information are then used to create a testing file
 generators and properties ready for use. Then, the user can
 (optionally) modify this auto-generated file to add his own properties
 or refine the generators. The testing file is then given as input to
-PropEr, which generates random testcases, invokes the web service
+PropEr, which generates random test cases, invokes the web service
 (using Yaws as a SOAP wrapper) and then analyzes the result.
 
 \subsection{WSDL}
@@ -237,7 +237,7 @@ test case occur, PropEr will try to locate the part of the test case
 that is actually responsible for the fault by \emph{shrinking} (i.e.
 simplifying) the offending test case. Since properties are written in
 the host language (Erlang), the user can utilize all of its
-expressivity to succesfully describe a vast range of input-output
+expressivity to successfully describe a vast range of input-output
 relations.
 
 To use PropEr for web service testing, we first need to specify the structure
@@ -250,7 +250,7 @@ XML response was well formed.
 
 \subsection{Yaws}
 
-Yaws is one of the most widely used Erlang HTTP webservers~\cite{yaws}.
+Yaws is one of the most widely used Erlang HTTP web servers~\cite{yaws}.
 Yaws uses an XML parser called Erlsom to handle the encoding and decoding
 of SOAP messages, a parser module faster and more user friendly than
 the xmerl module of the Erlang distribution, imposing however a few
@@ -269,7 +269,7 @@ Xmerl is an XML parser, included in the Erlang/OTP distribution~\cite{xmerl}.
 It transforms any XML to a (rather verbose) Erlang structure containing all the 
 information contained in the original XML document. In our framework, xmerl is 
 used to parse the XSD Schema of the WSDL specification into an Erlang structure, in 
-order to extract afterwards the typing information needed to create PropEr generators.
+order to extract afterward the typing information needed to create PropEr generators.
 
 \section{Automatic Creation of Generators and Properties} \label{sec:automatic}
 
@@ -283,8 +283,8 @@ easier to work with and can be used to handle all constraining facets
 of the XSD Schema.
 
 Using an XSD schema, one can describe increasingly complex types by combining
-smaller, simple datatypes into complex ones. Therefore, the first step towards 
-creating the intermediate representation is mapping the primitive datatypes 
+smaller, simple data types into complex ones. Therefore, the first step towards 
+creating the intermediate representation is mapping the primitive data types 
 into Erlang tuples. The following table shows this mapping for some of the
 most used basic types:
 
@@ -320,7 +320,7 @@ same list tuple is used to combine elements inside complex structures, when
 their \texttt{(minOccurs,maxOccurs)} attributes are different than~\texttt{(1,1)}.
 
 Another important issue that needs addressing is how to combine these
-simple datatypes into complex ones. In an XSD schema, there are three
+simple data types into complex ones. In an XSD schema, there are three
 main combinators for this: any, sequence and choice. The following
 table shows how to create a complex type. We assume we have the name
 of the complex type in the \texttt{TypeName} variable, and the
@@ -359,7 +359,7 @@ code:
 
 The first argument is one of \texttt{erlsom\_int},
 \texttt{erlsom\_string}, or \texttt{erlsom\_bool}. This argument is
-used afterwards to wrap the resulting code inside a \LET macro if
+used afterward to wrap the resulting code inside a \LET macro if
 needed like this:
 
 \begin{center}
@@ -419,14 +419,14 @@ Simple types yield tuples that contain only type information, along
 with an atom to facilitate compatibility with Erlsom and Yaws. In our
 example, we encounter three different simple types. Two of them,
 namely \texttt{xsd:string} and \texttt{xsd:positiveInteger} represent
-primitive datatypes of the WSDL specification, whereas
+primitive data types of the WSDL specification, whereas
 \texttt{tns:PaymentType} is a user defined simple type: a restriction
 upon the string type. The tuples associated with these types in our
 tool are:
 \begin{lstline}
 xsd:positiveInteger : {erlsom_string, integer, {1, inf}}
 \end{lstline}
-The \texttt{positiveInteger} primitive datatype is mapped by default to the
+The \texttt{positiveInteger} primitive data type is mapped by default to the
 above tuple.  Its first element, the Erlang atom \texttt{erlsom\_string}, states
 that for compatibility with Yaws it must be converted to String before wrapped
 in a valid SOAP structure, its second element states that the base PropEr
@@ -446,7 +446,7 @@ range 32--127, printable characters in the ASCII table).
 tns:PaymentType: {elements, ["visa", "paypal", "deposit"]}
 \end{lstline}
 The final simple type is a user defined restriction upon the basic
-string datatype, defining an enumeration of the acceptable values. As
+string data type, defining an enumeration of the acceptable values. As
 a result the only acceptable values are \texttt{"visa"},
 \texttt{"paypal"} or \texttt{"deposit"} and the intermediate tuple
 denotes just that.
@@ -460,7 +460,7 @@ well as namespace information of the XSD Schema. For example the
 \end{lstline}
 is represented with the tuple:
 \begin{lstline}
-{{price, ['ProductType'], 'http://bar'}, {erlsom_string,i nteger, {1, inf}}}
+{{price, ['ProductType'], 'http://bar'}, {erlsom_string, integer, {1, inf}}}
 \end{lstline}
 
 Finally, complex types usually define aggregates of simple types. In
@@ -591,7 +591,7 @@ modify and combine the generated data.
 In addition to automatically creating generators, our tool also
 creates a couple of functions for each web service operation, that
 invokes this operation using Yaws. Also, it creates a small property
-to test that the web service always responds for random testcases, with a
+to test that the web service always responds for random test cases, with a
 well formed SOAP message. This approach allows us to find most basic
 errors in a web service implementation identifying SOAP:Fault
 structures, since SOAP Faults are analogous to Java exceptions.
@@ -766,7 +766,7 @@ generate_delete_1_in() ->
   list(integer(32, 127)).
 
 generate_delete_1_c() -> 
-  integer(32, 127).
+  list(integer(32, 127)).
 
 generate_delete_1() -> 
   ?LET({Pr_delete_1_in, Pr_delete_1_c},
@@ -807,14 +807,14 @@ Shrinking .(1 time(s))
 false
 \end{lstoutput}
 
-In our implementation we assume that the string $in$ which is supposed
+In our implementation we assume that the string $c$ which is supposed
 to contain at its first character the character that should be removed
 from the string, is not empty. We have two options of fixing it, either
-fix our implementation, or remove this testcase from the generator. To
+fix our implementation, or remove this test case from the generator. To
 demonstrate how easy it is to change the generators created by the extension
-we choose the latter. We change the generator of $in$ to:
+we choose the latter. We change the generator of $c$ to:
 \begin{lsterlang}[firstnumber=10]
-generate_delete_1_in() ->
+generate_delete_1_c() ->
   ?LET(Len, range(1, 1), vector(Len, integer(32, 127))).
 \end{lsterlang}
 
@@ -823,7 +823,7 @@ actually remove the \LET macro, but we would need to be careful not to
 actually change the output of the generator to a char instead of a
 non-empty char list.
 
-Now only valid testcases are created. Testing the response property again we 
+Now only valid test cases are created. Testing the response property again we 
 get:
 \vfill\eject
 \begin{lstoutput}
@@ -841,7 +841,7 @@ few years. A variety of tools has emerged handling disparate aspects
 of testing, from functional to integration and regression testing; cf.
 a survey on the subject~\cite{SOATesting@springerlink-09}. Our tool
 can handle automatic functional testing with structurally valid
-testcases created based on the WSDL specification of a web service.
+test cases created based on the WSDL specification of a web service.
 Prior research work using a similar idea includes the work of
 Bartolini~\textit{et al.}~\cite{bartolini@ICSOC-08} and of
 Ma~\textit{et al.}~\cite{automated@IC-08}. Most existing tools have
@@ -884,17 +884,17 @@ power of PropEr. Our tool handles automatic test data generation as
 efficiently and automatically as many other available tools, yet its
 design will allow for faster and powerful testing, using properties 
 to automatically validate an arbitrary number of progressively more 
-complex testcases.
+complex test cases.
 
 \section{Concluding Remarks and Future Work}
 
 We demonstrated how our tool can be used to automatically test web services, 
 with a different approach than the existing tools on the market. Using our 
-tool, we were able to succesfully test a large number of web services 
+tool, we were able to successfully test a large number of web services 
 available for free, mostly in webservicex.net. From the 30+ web services we 
 attempted to test, all but one proved to respond with valid SOAP for all random 
 inputs provided by PropEr. The inability to test the remaining one, resulted 
-from the existance of a special (german) character in the WSDL specification.
+from the existence of a special (german) character in the WSDL specification.
 This character was not handled correctly by Yaws, which exited with an error. 
 
 One course for future work is to perfect test case generation. Our
