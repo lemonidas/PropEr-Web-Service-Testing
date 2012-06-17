@@ -630,8 +630,8 @@ The responds property is a \texttt{FORALL} macro, creating random data
 for the web service using the PropEr generators previously created,
 uses the aforementioned calling functions to invoke the operation and
 finally pattern matches on the resulting tuple. If Yaws encounters
-some problem in parsing the SOAP messages an \texttt{\{error,
-  Reason\}} tuple is returned and the property is not satisfied. Also,
+some problem in parsing the SOAP messages an \texttt{$\{$error,
+  Reason$\}$} tuple is returned and the property is not satisfied. Also,
 if a \texttt{soap:Fault} struct is encountered as the body of the web
 service SOAP response, the web service has failed to respond correctly
 and the property is also not satisfied. In any other case, Yaws was
