@@ -54,7 +54,8 @@
 }{}
 \lstnewenvironment{lstoutput}[1][]{%
   \lstset{language=erlang,frame=trBL,frameround=tttt,
-          xleftmargin=\parindent,xrightmargin=\parindent,#1}%
+          basicstyle=\footnotesize\ttfamily,
+          xleftmargin=2em,xrightmargin=2em,#1}%
 }{}
 
 \newcommand{\LET}{\texttt{?LET}\xspace}
@@ -67,7 +68,7 @@
   National Technical University of Athens, Greece\\
   $^{2}$ Department of Information Technology, Uppsala University, Sweden
 }
-\email{$\{\,$leolamp$,\,$kostis$\,\}\,$@softlab.ntua.gr}
+\email{$\{\,$leolamp$,\,$kostis$\,\}\,$@softlab.ntua.gr \hspace*{2em} kostis@it.uu.se}
 }
 \def\titlerunning{Automatic WSDL-guided Test Case Generation for PropEr Testing of Web Services}
 \def\authorrunning{L. Lampropoulos and K. Sagonas}
@@ -105,7 +106,7 @@ process, mainly due to the overly verbose nature of XML SOAP messages
 which makes writing test cases by hand not a practical option. Many of
 the existing tools for testing web services help speed up this
 process, up to a point, but when the web service functionality becomes
-involved, they fail to assist the tester in testing the web services
+involved they fail to assist the tester in testing the web services
 in an easy and straightforward manner.
 
 % Property based testing + PropEr
@@ -127,11 +128,27 @@ to write manually. This is where our tool comes in: It automatically
 creates test case generators and simple properties to be tested based
 on the WSDL specification of the web service and feeds them to PropEr
 for execution.
-%
-Skipping ahead, we show a small example of using our tool to perform
-fully-automated response testing on a web service that, at the time of
-this writing (May 2012), can be accessed freely on the web:
 
+To give an idea of how one can use our tool, in
+Figure~\ref{fig:response_testing} we show a small example of
+performing fully-automated response testing on a web service that, at
+the time of this writing (May 2012), can be accessed freely on the
+web.
+%
+In the command shown in the figure, our tool read the WSDL
+specification of this web service and, based on the types and
+operations that were specified there, created a file with test case
+generators and a property called
+\texttt{prop\_ChangeCookingUnit\_responds}. After compiling and
+loading this file, it executed 100 random tests on the web service to
+check its responsiveness and the web service responded with valid SOAP
+messages on all these tests. Our tool however, as we will see, is
+designed for more involved testing than checking that a web service
+responds to random valid requests. Optionally, it allows the user to
+easily modify the created generators and properties in order to test
+more involved properties that the web service must satisfy.
+
+\begin{figure}
 \begin{lstoutput}
 Eshell V5.9 (abort with ^G)
 1> proper_ws:response_check("http://www.webservicex.net/ConvertCooking.asmx?WSDL").
@@ -140,17 +157,10 @@ Testing property: prop_ChangeCookingUnit_responds
 OK: Passed 100 test(s).
 true
 \end{lstoutput}
-
-In this example, what our tool did is to read the WSDL specification
-of this web service and, based on the types and operations that were
-specified there, created a file with test case generators and a
-property, called \texttt{prop\_ChangeCookingUnit\_responds}. After
-compiling and loading this file, it performed 100 random tests on the
-web service to check its responsiveness and the web service responded
-with valid SOAP messages on all these tests. Our tool however, is
-designed for more. Optionally, it allows the user to easily modify the
-created generators and properties in order to test more involved
-properties that the web service must satisfy.
+\caption{Automatic response testing of a web service in an Erlang
+  shell using our tool.}
+\label{fig:response_testing}
+\end{figure}
 
 % What this paper does + generation techniques
 
@@ -159,9 +169,9 @@ employs to handle this automatic test case generation. Similar ideas
 have already appeared in a number of papers, however the corresponding
 tools have yet to mature, while our design can lead to much deeper and
 more thorough testing possibilities because of its integration with
-PropEr, a state-of-the-art property based testing tool. In addition,
-we present some example uses of these generators in automatically
-testing web services for unexpected behaviors.
+PropEr, a state-of-the-art property based testing tool.
+% In addition, we present some example uses of these generators in
+% automatically testing web services for unexpected behaviors.
 
 % Paper outline
 
@@ -177,7 +187,8 @@ Section~\ref{sec:related} compares our work with related research and
 tools already available, while the last section draws conclusions and
 presents ideas for future work.
 
-\section{System Architecture} \label{sec:architecture}
+
+\section{System Architecture and its Components} \label{sec:architecture}
 
 \begin{figure}[!b]
 \centering
@@ -201,7 +212,7 @@ or refine the generators. The testing file is then given as input to
 PropEr, which generates random test cases, invokes the web service
 (using Yaws as a SOAP wrapper) and then analyzes the result.
 
-\subsection{WSDL}
+\paragraph{WSDL}
 
 WSDL is the leading specification for web services in XML
 format~\cite{wsdl_spec}, describing the web service in full:
@@ -224,7 +235,7 @@ In addition to types, WSDL also describes the operations the web
 service provides, along with information linking the input and output
 messages of an operation with types defined in the XSD schema.
 
-\subsection{PropEr}
+\paragraph{PropEr}
 
 Property-based testing is a relatively new approach to software
 testing. The user specifies the general structure of valid inputs,
@@ -248,7 +259,7 @@ WSDL specification we create valid PropEr generators, while a sample property
 is created, that tests that no exceptions (SOAP Faults) happened and that the 
 XML response was well formed.
 
-\subsection{Yaws}
+\paragraph{Yaws}
 
 Yaws is one of the most widely used Erlang HTTP web servers~\cite{yaws}.
 Yaws uses an XML parser called Erlsom to handle the encoding and decoding
@@ -263,7 +274,7 @@ structure, invoking a web service operation with the formed SOAP
 message, retrieving the result and returning it in the form of an
 Erlang tuple to PropEr for further analysis.
 
-\subsection{xmerl}
+\paragraph{xmerl}
 
 Xmerl is an XML parser, included in the Erlang/OTP distribution~\cite{xmerl}.
 It transforms any XML to a (rather verbose) Erlang structure containing all the 
